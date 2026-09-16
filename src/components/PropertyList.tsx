@@ -3,101 +3,14 @@ import { Property, FilterState, UnitType, CurrencyType } from '../types';
 import { PropertyCard } from './PropertyCard';
 import { InteractiveMap } from './InteractiveMap';
 
-interface PropertyListProps {
-  properties: Property[];
-  filters: FilterState;
-  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  selectedProperty: Property | null;
-  onSelectProperty: (property: Property) => void;
-  favorites: string[];
-  onToggleFavorite: (id: string) => void;
-  unit: UnitType;
-  currency: CurrencyType;
-  onResetFilters: () => void;
-}
-
+interface PropertyListProps { properties: Property[]; filters: FilterState; setFilters: React.Dispatch<React.SetStateAction<FilterState>>; selectedProperty: Property | null; onSelectProperty: (property: Property) => void; favorites: string[]; onToggleFavorite: (id: string) => void; unit: UnitType; currency: CurrencyType; onResetFilters: () => void; }
 export const PropertyList: React.FC<PropertyListProps> = ({ properties, filters, setFilters, selectedProperty, onSelectProperty, favorites, onToggleFavorite, unit, currency, onResetFilters }) => {
-  const [viewMode, setViewMode] = useState<'grid' | 'split'>('grid');
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  const districts = [
-    { id: 'all', label: 'All' },
-    { id: 'Bergen County', label: 'Bergen County' },
-    { id: 'Fort Lee', label: 'Fort Lee' },
-    { id: 'Edgewater', label: 'Edgewater' },
-    { id: 'Tenafly', label: 'Tenafly' },
-    { id: 'Englewood Cliffs', label: 'Englewood Cliffs' },
-  ];
-
-  return (
-    <section id="properties-section" className="bg-white py-20 lg:py-28">
-      <div className="mx-auto max-w-[1440px] px-6 lg:px-10">
-        <div className="flex flex-col gap-6 border-b border-black/10 pb-8 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="mb-3 text-[9px] font-medium tracking-[0.25em] text-black/45">PROPERTY SEARCH</p>
-            <h2 className="text-3xl font-light tracking-[-0.02em] sm:text-4xl lg:text-[48px]">Homes for sale & rent</h2>
-          </div>
-          <div className="flex items-center gap-6 text-[10px] tracking-[0.16em]">
-            <button onClick={() => setViewMode('grid')} className={viewMode === 'grid' ? 'border-b border-black pb-1' : 'text-black/45'}>LISTINGS</button>
-            <button onClick={() => setViewMode('split')} className={viewMode === 'split' ? 'border-b border-black pb-1' : 'text-black/45'}>MAP</button>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-5 border-b border-black/10 py-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[11px] text-black/55">
-            {districts.map(d => (
-              <button key={d.id} onClick={() => setFilters(prev => ({ ...prev, district: d.id }))} className={filters.district === d.id ? 'text-black' : 'hover:text-black'}>
-                {d.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-5 text-[10px] text-black/60">
-            <select value={filters.listingType} onChange={e => setFilters(prev => ({ ...prev, listingType: e.target.value as any }))} className="bg-transparent outline-none">
-              <option value="all">All listings</option>
-              <option value="sale">For sale</option>
-              <option value="jeonse">For lease</option>
-              <option value="rent">For rent</option>
-              <option value="commercial">Commercial</option>
-            </select>
-            <select value={filters.sortBy} onChange={e => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))} className="bg-transparent outline-none">
-              <option value="newest">Newest</option>
-              <option value="price_desc">Price high to low</option>
-              <option value="price_asc">Price low to high</option>
-              <option value="pyeong_desc">Largest</option>
-            </select>
-            {(filters.district !== 'all' || filters.listingType !== 'all' || filters.searchQuery) && <button onClick={onResetFilters} className="text-black/40 hover:text-black">Reset</button>}
-          </div>
-        </div>
-
-        {filters.searchQuery && <p className="py-6 text-[11px] text-black/50">Results for “{filters.searchQuery}” · {properties.length} properties</p>}
-
-        {properties.length === 0 ? (
-          <div className="py-24 text-center">
-            <h3 className="text-xl font-light">No matching properties</h3>
-            <p className="mt-3 text-sm text-black/45">Try another neighborhood or adjust your search.</p>
-            <button onClick={onResetFilters} className="mt-6 border-b border-black pb-1 text-[10px] tracking-[0.16em]">RESET SEARCH</button>
-          </div>
-        ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 gap-x-8 gap-y-14 pt-10 md:grid-cols-2 lg:grid-cols-3">
-            {properties.map(prop => <PropertyCard key={prop.id} property={prop} isFavorite={favorites.includes(prop.id)} onToggleFavorite={onToggleFavorite} onSelectProperty={onSelectProperty} unit={unit} currency={currency} />)}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-8 pt-10 lg:grid-cols-12">
-            <div className="h-[520px] overflow-hidden bg-[#f2f2f0] lg:sticky lg:top-24 lg:col-span-7 lg:h-[calc(100vh-140px)]">
-              <InteractiveMap properties={properties} selectedProperty={selectedProperty} onSelectProperty={onSelectProperty} hoveredPropertyId={hoveredId} unit={unit} currency={currency} />
-            </div>
-            <div className="lg:col-span-5">
-              <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-2 lg:grid-cols-1">
-                {properties.map(prop => (
-                  <div key={prop.id} onMouseEnter={() => setHoveredId(prop.id)} onMouseLeave={() => setHoveredId(null)}>
-                    <PropertyCard property={prop} isFavorite={favorites.includes(prop.id)} onToggleFavorite={onToggleFavorite} onSelectProperty={onSelectProperty} unit={unit} currency={currency} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
-  );
+  const [viewMode, setViewMode] = useState<'grid' | 'split'>('grid'); const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const districts = [{ id: 'all', label: 'All Communities' }, { id: 'Bergen County', label: 'Bergen County' }, { id: 'Fort Lee', label: 'Fort Lee' }, { id: 'Palisades Park', label: 'Palisades Park' }, { id: 'Edgewater', label: 'Edgewater' }, { id: 'Tenafly', label: 'Tenafly' }, { id: 'Closter', label: 'Closter' }];
+  return <section id="properties-section" className="bg-white py-20 lg:py-28"><div className="mx-auto max-w-[1440px] px-6 lg:px-10">
+    <div className="flex flex-col gap-6 border-b border-black/10 pb-8 md:flex-row md:items-end md:justify-between"><div><p className="mb-3 text-[9px] font-medium tracking-[0.25em] text-black/45">PROPERTY SEARCH · 매물 검색</p><h2 className="text-3xl font-light tracking-[-0.02em] sm:text-4xl lg:text-[48px]">Homes for sale &amp; rent <span className="block mt-2 text-base text-black/40 sm:text-lg">뉴저지 매매 · 렌트 매물</span></h2></div><div className="flex items-center gap-6 text-[10px] tracking-[0.16em]"><button onClick={() => setViewMode('grid')} className={viewMode === 'grid' ? 'border-b border-black pb-1' : 'text-black/45'}>LISTINGS · 매물</button><button onClick={() => setViewMode('split')} className={viewMode === 'split' ? 'border-b border-black pb-1' : 'text-black/45'}>MAP · 지도</button></div></div>
+    <div className="flex flex-col gap-5 border-b border-black/10 py-5 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-x-6 gap-y-3 text-[11px] text-black/55">{districts.map(d => <button key={d.id} onClick={() => setFilters(prev => ({ ...prev, district: d.id }))} className={filters.district === d.id ? 'text-black' : 'hover:text-black'}>{d.label}</button>)}</div><div className="flex items-center gap-5 text-[10px] text-black/60"><select value={filters.listingType} onChange={e => setFilters(prev => ({ ...prev, listingType: e.target.value as any }))} className="bg-transparent outline-none"><option value="all">All listings · 전체</option><option value="sale">For sale · 매매</option><option value="rent">For rent · 렌트</option><option value="commercial">Commercial · 상업용</option></select><select value={filters.sortBy} onChange={e => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))} className="bg-transparent outline-none"><option value="newest">Newest</option><option value="price_desc">Price high to low</option><option value="price_asc">Price low to high</option><option value="pyeong_desc">Largest</option></select>{(filters.district !== 'all' || filters.listingType !== 'all' || filters.searchQuery) && <button onClick={onResetFilters} className="text-black/40 hover:text-black">Reset</button>}</div></div>
+    {filters.searchQuery && <p className="py-6 text-[11px] text-black/50">Results for “{filters.searchQuery}” · {properties.length} properties</p>}
+    {properties.length === 0 ? <div className="py-24 text-center"><h3 className="text-xl font-light">No matching properties</h3><p className="mt-3 text-sm text-black/45">다른 지역이나 검색 조건을 선택해 주세요.</p><button onClick={onResetFilters} className="mt-6 border-b border-black pb-1 text-[10px] tracking-[0.16em]">RESET SEARCH · 검색 초기화</button></div> : viewMode === 'grid' ? <div className="grid grid-cols-1 gap-x-8 gap-y-14 pt-10 md:grid-cols-2 lg:grid-cols-3">{properties.map(prop => <PropertyCard key={prop.id} property={prop} isFavorite={favorites.includes(prop.id)} onToggleFavorite={onToggleFavorite} onSelectProperty={onSelectProperty} unit={unit} currency={currency} />)}</div> : <div className="grid grid-cols-1 gap-8 pt-10 lg:grid-cols-12"><div className="h-[520px] overflow-hidden bg-[#f2f2f0] lg:sticky lg:top-24 lg:col-span-7 lg:h-[calc(100vh-140px)]"><InteractiveMap properties={properties} selectedProperty={selectedProperty} onSelectProperty={onSelectProperty} hoveredPropertyId={hoveredId} unit={unit} currency={currency} /></div><div className="lg:col-span-5"><div className="grid grid-cols-1 gap-y-12 sm:grid-cols-2 lg:grid-cols-1">{properties.map(prop => <div key={prop.id} onMouseEnter={() => setHoveredId(prop.id)} onMouseLeave={() => setHoveredId(null)}><PropertyCard property={prop} isFavorite={favorites.includes(prop.id)} onToggleFavorite={onToggleFavorite} onSelectProperty={onSelectProperty} unit={unit} currency={currency} /></div>)}</div></div></div>}
+  </div></section>;
 };
