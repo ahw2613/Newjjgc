@@ -1,112 +1,19 @@
 import React from 'react';
 
-interface ServicesSectionProps {
-  onOpenSellModal: () => void;
-  onOpenVipConsultModal: () => void;
-  onSelectBuy?: () => void;
-}
+interface ServicesSectionProps { onOpenSellModal: () => void; onOpenVipConsultModal: () => void; onSelectBuy?: () => void; }
 
-export const ServicesSection: React.FC<ServicesSectionProps> = ({
-  onOpenSellModal,
-  onOpenVipConsultModal,
-  onSelectBuy
-}) => {
-  const handleBuyClick = () => {
-    if (onSelectBuy) {
-      onSelectBuy();
-    } else {
-      const elem = document.getElementById('properties-section');
-      if (elem) elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
+export const ServicesSection: React.FC<ServicesSectionProps> = ({ onOpenSellModal, onOpenVipConsultModal, onSelectBuy }) => {
+  const handleBuyClick = () => { if (onSelectBuy) onSelectBuy(); else document.getElementById('properties-section')?.scrollIntoView({ behavior: 'smooth' }); };
+  const services = [
+    { title: 'BUY A HOME', ko: '주택 구매', copy: 'Search homes, condos and townhouses across Northern New Jersey with local guidance from search through closing.', koCopy: '뉴저지 주택, 콘도, 타운하우스 매물 검색부터 오퍼와 클로징까지 현지 시장 기준으로 안내합니다.', action: handleBuyClick, label: 'START YOUR SEARCH' },
+    { title: 'SELL YOUR PROPERTY', ko: '주택 매도', copy: 'Pricing, preparation, marketing and negotiation designed around your property and local market conditions.', koCopy: '정확한 가격 분석부터 마케팅, 바이어 연결, 협상까지 매도 과정을 체계적으로 진행합니다.', action: onOpenSellModal, label: 'REQUEST A VALUATION' },
+    { title: 'RENT & RELOCATE', ko: '렌트 · 이주', copy: 'Rental and relocation support for clients moving to Bergen County, Hudson County and surrounding communities.', koCopy: '버겐카운티와 허드슨카운티를 포함한 뉴저지 지역 렌트와 이주 상담을 도와드립니다.', action: onOpenVipConsultModal, label: 'TALK TO AN AGENT' },
+  ];
   return (
-    <section id="services-section" className="py-24 lg:py-32 bg-white text-[#111111]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        {/* Editorial Section Header */}
-        <div className="max-w-xl mb-16">
-          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-neutral-400 mb-3">
-            PRACTICES
-          </p>
-          <h2 className="text-3xl sm:text-5xl font-light tracking-tight leading-tight">
-            How We Serve.
-          </h2>
-          <p className="mt-4 text-sm font-light text-neutral-600 leading-relaxed">
-            단순 중개를 넘어 고객의 생애 자산 가치를 극대화하는 3대 전속 부동산 자문 서비스를 제공합니다.
-          </p>
-        </div>
-
-        {/* 3 Pillar Architectural Cards (Compass style: Large Imagery, generous breathing room) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8">
-          {/* 1. BUY */}
-          <div className="flex flex-col">
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100 mb-6">
-              <img
-                src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80"
-                alt="Buying Luxury Real Estate"
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
-            <h3 className="text-xl font-medium tracking-tight mb-3">
-              BUY &amp; ACQUIRE
-            </h3>
-            <p className="text-sm font-light text-neutral-600 leading-relaxed mb-6">
-              시장에 공개되지 않은 비공개 오프마켓 매물부터 한강변 최상위 펜트하우스까지, 자산 규모와 라이프스타일에 맞춘 1:1 맞춤형 포트폴리오를 제공합니다.
-            </p>
-            <button
-              onClick={handleBuyClick}
-              className="mt-auto text-left text-xs uppercase tracking-widest font-semibold text-neutral-900 hover:opacity-60 transition"
-            >
-              EXPLORE COLLECTION →
-            </button>
-          </div>
-
-          {/* 2. SELL */}
-          <div className="flex flex-col">
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100 mb-6">
-              <img
-                src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80"
-                alt="Selling with The Address"
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
-            <h3 className="text-xl font-medium tracking-tight mb-3">
-              SELL &amp; REPRESENT
-            </h3>
-            <p className="text-sm font-light text-neutral-600 leading-relaxed mb-6">
-              건축 전문 사진작가의 미디어 패키지 촬영, 빅데이터 기반 가치평가, 엄선된 VIP 바이어 네트워크를 통해 귀하의 매물을 신속하고 가치 있게 중개합니다.
-            </p>
-            <button
-              onClick={onOpenSellModal}
-              className="mt-auto text-left text-xs uppercase tracking-widest font-semibold text-neutral-900 hover:opacity-60 transition"
-            >
-              REQUEST VALUATION →
-            </button>
-          </div>
-
-          {/* 3. LEASE & COMMERCIAL */}
-          <div className="flex flex-col">
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100 mb-6">
-              <img
-                src="https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&q=80"
-                alt="Commercial and Corporate Relocation"
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
-            <h3 className="text-xl font-medium tracking-tight mb-3">
-              LEASE &amp; COMMERCIAL
-            </h3>
-            <p className="text-sm font-light text-neutral-600 leading-relaxed mb-6">
-              국내 최고급 전월세 임대차 자문 및 테헤란로·성수·판교 핵심 상업용 빌딩과 기업 사옥 이전을 위한 세무·법률 복합 컨설팅을 수행합니다.
-            </p>
-            <button
-              onClick={onOpenVipConsultModal}
-              className="mt-auto text-left text-xs uppercase tracking-widest font-semibold text-neutral-900 hover:opacity-60 transition"
-            >
-              SCHEDULE ADVISORY →
-            </button>
-          </div>
-        </div>
+    <section id="services-section" className="border-t border-black/10 bg-white py-20 lg:py-24">
+      <div className="mx-auto max-w-[1440px] px-6 lg:px-10">
+        <div className="grid gap-10 border-b border-black/10 pb-12 lg:grid-cols-[1fr_2fr] lg:items-end"><div><p className="text-[9px] font-medium tracking-[0.25em] text-black/45">REAL ESTATE SERVICES</p><h2 className="mt-3 text-3xl font-light tracking-[-0.02em] sm:text-4xl">Buying, selling &amp; renting<br /><span className="text-black/45">구매 · 매도 · 렌트</span></h2></div><p className="max-w-xl text-[13px] leading-6 text-black/55">A local New Jersey brokerage experience, with Korean and English support. <br />뉴저지 현지 부동산 시장에 대한 이해를 바탕으로 한국어와 영어로 상담합니다.</p></div>
+        <div className="grid divide-y divide-black/10 md:grid-cols-3 md:divide-x md:divide-y-0">{services.map((service, i) => <div key={service.title} className="py-8 md:px-8 md:first:pl-0 md:last:pr-0"><p className="text-[9px] tracking-[0.16em] text-black/40">0{i + 1}</p><h3 className="mt-7 text-[18px] font-medium">{service.title}</h3><p className="mt-1 text-[12px] text-black/45">{service.ko}</p><p className="mt-5 text-[12px] leading-5 text-black/60">{service.copy}</p><p className="mt-2 text-[12px] leading-5 text-black/45">{service.koCopy}</p><button onClick={service.action} className="mt-7 border-b border-black pb-1 text-[9px] font-medium tracking-[0.16em] hover:opacity-50">{service.label} · {service.ko === '주택 구매' ? '구매 상담' : service.ko === '주택 매도' ? '매도 상담' : '상담하기'}</button></div>)}</div>
       </div>
     </section>
   );

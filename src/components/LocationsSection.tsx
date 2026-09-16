@@ -1,85 +1,42 @@
 import React from 'react';
-import { DISTRICTS_GUIDE } from '../data/locationsData';
 
 interface LocationsSectionProps {
   onSelectDistrictFilter: (districtName: string) => void;
 }
 
+const AREAS = [
+  { name: 'Fort Lee', region: 'Bergen County', image: 'https://images.unsplash.com/photo-1605146769289-440113cc3d00?auto=format&fit=crop&w=1400&q=82', copy: 'Hudson River views, convenient access to Manhattan, and a strong Korean-American community.' },
+  { name: 'Edgewater', region: 'Hudson Waterfront', image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=82', copy: 'Waterfront living along the Hudson with direct views across to Manhattan.' },
+  { name: 'Englewood Cliffs', region: 'Bergen County', image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=82', copy: 'Private estates, mature neighborhoods, and one of Bergen County’s most sought-after addresses.' },
+  { name: 'Tenafly', region: 'Northern Valley', image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1400&q=82', copy: 'Quiet residential streets, highly regarded schools, and a suburban setting close to New York.' },
+  { name: 'Palisades Park', region: 'Bergen County', image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=82', copy: 'A connected Bergen County community with local businesses, transit, and easy access to Fort Lee.' },
+  { name: 'Closter', region: 'Northern Valley', image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1400&q=82', copy: 'A refined suburban market known for spacious homes, established neighborhoods, and local amenities.' },
+];
+
 export const LocationsSection: React.FC<LocationsSectionProps> = ({ onSelectDistrictFilter }) => {
-  const mapDistrictToFilter = (id: string) => {
-    switch (id) {
-      case 'district-yongsan': return '용산/한남';
-      case 'district-gangnam': return '강남/청담';
-      case 'district-seongsu': return '성동/성수';
-      case 'district-seocho': return '서초/반포';
-      case 'district-songpa': return '송파/잠실';
-      case 'district-gwangju': return '광주/봉선';
-      default: return 'all';
-    }
-  };
-
-  const handleDistrictClick = (id: string) => {
-    const filterKey = mapDistrictToFilter(id);
-    onSelectDistrictFilter(filterKey);
-    const elem = document.getElementById('properties-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <section id="locations-section" className="py-24 lg:py-32 bg-[#fafafa] text-[#111111]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        {/* Editorial Header */}
-        <div className="max-w-2xl mb-16">
-          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-neutral-400 mb-3">
-            PRIME NEIGHBORHOODS
-          </p>
-          <h2 className="text-3xl sm:text-5xl font-light tracking-tight leading-tight">
-            Curated Neighborhoods.
-          </h2>
-          <p className="mt-4 text-sm font-light text-neutral-600 leading-relaxed">
-            전통적인 하이엔드 주거지 한남과 청담부터 신흥 럭셔리 허브 성수와 반포, 그리고 영호남 거점 특구까지 엄선된 입지별 포트폴리오를 제공합니다.
-          </p>
+    <section id="locations-section" className="bg-[#f5f5f2] py-20 lg:py-28">
+      <div className="mx-auto max-w-[1440px] px-6 lg:px-10">
+        <div className="mb-14 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="mb-3 text-[9px] font-medium tracking-[0.25em] text-black/45">NORTH JERSEY</p>
+            <h2 className="text-3xl font-light tracking-[-0.02em] sm:text-5xl">Explore the area</h2>
+          </div>
+          <p className="max-w-md text-[13px] leading-6 text-black/55">Local market knowledge matters. Explore the communities our team knows best across Bergen County and the Hudson waterfront.</p>
         </div>
 
-        {/* Large Visual Neighborhood Grid (Compass Editorial Style) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {DISTRICTS_GUIDE.slice(0, 6).map((dist) => (
-            <div
-              key={dist.id}
-              onClick={() => handleDistrictClick(dist.id)}
-              className="group cursor-pointer flex flex-col"
-            >
-              {/* High-res image container */}
-              <div className="relative aspect-[16/11] w-full overflow-hidden bg-neutral-200">
-                <img
-                  src={dist.image}
-                  alt={dist.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+        <div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+          {AREAS.map(area => (
+            <article key={area.name} className="group cursor-pointer" onClick={() => onSelectDistrictFilter(area.name)}>
+              <div className="aspect-[1.2/1] overflow-hidden bg-[#e9e9e5]">
+                <img src={area.image} alt={area.name} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]" />
               </div>
-
-              {/* Minimalist Info Below (No boxes) */}
               <div className="pt-4">
-                <div className="flex items-baseline justify-between mb-1">
-                  <h3 className="text-lg font-medium text-[#111111] group-hover:underline underline-offset-4">
-                    {dist.name}
-                  </h3>
-                  <span className="text-xs text-neutral-400 uppercase tracking-wider font-light">
-                    {dist.avgSalePyeongPrice}
-                  </span>
-                </div>
-                <p className="text-xs font-light text-neutral-500 line-clamp-2 leading-relaxed">
-                  {dist.highlight}
-                </p>
-                <span className="inline-block mt-3 text-[11px] font-medium tracking-widest uppercase text-neutral-900 group-hover:translate-x-1 transition-transform">
-                  EXPLORE PROPERTIES →
-                </span>
+                <p className="text-[9px] font-medium tracking-[0.18em] text-black/40">{area.region}</p>
+                <h3 className="mt-1 text-[19px] font-medium tracking-[-0.01em]">{area.name}</h3>
+                <p className="mt-2 max-w-sm text-[11px] leading-5 text-black/52">{area.copy}</p>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>
