@@ -1,395 +1,354 @@
 import React, { useState } from 'react';
 import { 
-  LayoutGrid, 
-  List, 
-  Map, 
-  SlidersHorizontal, 
-  RotateCcw, 
-  X, 
-  GraduationCap, 
-  Calendar, 
-  DollarSign, 
-  Bed, 
-  Home, 
-  Check, 
-  ArrowUpDown 
-} from 'lucide-react';
-import { CurrencyType, FilterState, Property, UnitType } from '../types';
+  Property, 
+  FilterState, 
+  UnitType, 
+  CurrencyType, 
+  ListingType, 
+  PropertyType 
+} from '../types';
 import { PropertyCard } from './PropertyCard';
-import { InteractiveNJMap } from './InteractiveNJMap';
-import { formatPrice, formatArea } from '../utils/formatters';
+import { InteractiveMap } from './InteractiveMap';
+import { 
+  SlidersHorizontal, 
+  Map, 
+  LayoutGrid, 
+  RotateCcw, 
+  Check, 
+  ChevronDown, 
+  Filter,
+  Sparkles
+} from 'lucide-react';
 
 interface PropertyListProps {
   properties: Property[];
-  allPropertiesCount: number;
   filters: FilterState;
-  onFilterChange: (newFilters: Partial<FilterState>) => void;
-  onResetFilters: () => void;
-  currency: CurrencyType;
-  unit: UnitType;
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  selectedProperty: Property | null;
+  onSelectProperty: (property: Property) => void;
   favorites: string[];
   onToggleFavorite: (id: string) => void;
-  onSelectProperty: (property: Property) => void;
+  unit: UnitType;
+  currency: CurrencyType;
+  onResetFilters: () => void;
 }
 
 export const PropertyList: React.FC<PropertyListProps> = ({
   properties,
-  allPropertiesCount,
   filters,
-  onFilterChange,
-  onResetFilters,
-  currency,
-  unit,
+  setFilters,
+  selectedProperty,
+  onSelectProperty,
   favorites,
   onToggleFavorite,
-  onSelectProperty
+  unit,
+  currency,
+  onResetFilters
 }) => {
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'split' | 'grid'>('split');
+  const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
 
-  // Check if any non-default filters are active
-  const hasActiveFilters = 
-    filters.listingType !== 'all' ||
-    filters.town !== 'all' ||
-    filters.propertyType !== 'all' ||
-    filters.beds > 0 ||
-    filters.minSchoolRating > 0 ||
-    filters.openHouseOnly ||
-    filters.newConstructionOnly ||
-    filters.searchQuery.trim() !== '' ||
-    filters.maxPrice < 5000000;
+  const districts = [
+    { id: 'all', label: '전체 권역' },
+    { id: '용산/한남', label: '용산 · 한남' },
+    { id: '강남/청담', label: '강남 · 청담 · 압구정' },
+    { id: '성동/성수', label: '성동 · 성수 (서울숲)' },
+    { id: '서초/반포', label: '서초 · 반포 한강' },
+    { id: '송파/잠실', label: '송파 · 잠실 (롯데타워)' },
+    { id: '여의도/마포', label: '여의도 · 마포' },
+    { id: '광주/봉선', label: '광주 · 봉선 명문학군' },
+  ];
+
+  const listingTypes: { id: 'all' | ListingType; label: string }[] = [
+    { id: 'all', label: '전체' },
+    { id: 'sale', label: '매매' },
+    { id: 'jeonse', label: '전세' },
+    { id: 'rent', label: '월세' },
+    { id: 'commercial', label: '빌딩·상업용' },
+  ];
+
+  const propertyTypes: { id: 'all' | PropertyType; label: string }[] = [
+    { id: 'all', label: '모든 유형' },
+    { id: 'apartment', label: '아파트' },
+    { id: 'luxury_villa', label: '고급빌라·펜트' },
+    { id: 'officetel', label: '오피스텔·주상복합' },
+    { id: 'house', label: '단독주택·타운' },
+    { id: 'commercial', label: '빌딩·사옥' },
+  ];
 
   return (
-    <div id="listings-section" className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Header & Controls Toolbar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          {/* Result Title & Count */}
+    <section id="properties-section" className="py-10 bg-slate-50 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header & Subtitle */}
+        <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                {filters.listingType === 'sale' 
-                  ? '뉴저지 매매 매물' 
-                  : filters.listingType === 'rent' 
-                  ? '뉴저지 렌트 매물' 
-                  : filters.listingType === 'commercial' 
-                  ? '뉴저지 상업용 매물' 
-                  : '뉴저지 전체 부동산 매물'}
-              </h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">
-                {properties.length}개 검색됨
-              </span>
+            <div className="flex items-center gap-2 text-xs font-semibold text-amber-700 tracking-wider uppercase mb-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Verified High-End Portfolio</span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
-              버겐카운티 및 허드슨카운티의 실시간 MLS 등록 매물 리스트입니다.
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
+              실시간 프리미엄 매물 컬렉션
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              철저한 권리분석과 실사를 마친 정직하고 투명한 전속 중개 매물입니다.
             </p>
           </div>
 
-          {/* Controls Right */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {/* Filter Toggle Button */}
-            <button
-              onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors flex items-center gap-1.5 cursor-pointer ${
-                isFilterPanelOpen || hasActiveFilters
-                  ? 'bg-blue-50 border-blue-300 text-blue-700'
-                  : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>상세 필터</span>
-              {hasActiveFilters && (
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-              )}
-            </button>
-
-            {/* Sort Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-700">
-              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <select
-                value={filters.sortBy}
-                onChange={(e) => onFilterChange({ sortBy: e.target.value as any })}
-                className="bg-transparent font-semibold text-slate-800 focus:outline-hidden cursor-pointer"
-              >
-                <option value="newest">최신 등록순</option>
-                <option value="price_asc">가격 낮은순</option>
-                <option value="price_desc">가격 높은순</option>
-                <option value="school_desc">학군 점수 높은순</option>
-                <option value="sqft_desc">면적 넓은순</option>
-              </select>
-            </div>
-
-            {/* View Mode Switcher */}
-            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+          {/* View Toggle (Split Map vs Grid) */}
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <div className="inline-flex rounded-xl bg-white p-1 border border-slate-200 shadow-sm">
               <button
+                id="btn-view-split"
+                onClick={() => setViewMode('split')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  viewMode === 'split'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Map className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">지도 분할뷰</span>
+                <span className="sm:hidden">지도</span>
+              </button>
+              <button
+                id="btn-view-grid"
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                  viewMode === 'grid' ? 'bg-white shadow-xs text-blue-600' : 'text-slate-500 hover:text-slate-900'
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  viewMode === 'grid'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
-                title="그리드 뷰"
               >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                  viewMode === 'list' ? 'bg-white shadow-xs text-blue-600' : 'text-slate-500 hover:text-slate-900'
-                }`}
-                title="리스트 뷰"
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('map')}
-                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                  viewMode === 'map' ? 'bg-white shadow-xs text-blue-600' : 'text-slate-500 hover:text-slate-900'
-                }`}
-                title="지도 보기"
-              >
-                <Map className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>그리드뷰</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Detailed Expandable Filter Drawer */}
-        {isFilterPanelOpen && (
-          <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in">
-            {/* Price Max Slider */}
-            <div>
-              <div className="flex justify-between items-center text-xs font-bold text-slate-700 mb-1">
-                <span>최대 희망 가격:</span>
-                <span className="text-blue-600">
-                  {filters.maxPrice >= 5000000 ? '제한 없음' : `$${(filters.maxPrice / 1000).toLocaleString()}K`}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={200000}
-                max={5000000}
-                step={100000}
-                value={filters.maxPrice}
-                onChange={(e) => onFilterChange({ maxPrice: Number(e.target.value) })}
-                className="w-full accent-blue-600 cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-                <span>$200K</span>
-                <span>$1.5M</span>
-                <span>$3M</span>
-                <span>$5M+</span>
-              </div>
+        {/* Filter Control Bar */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm mb-6 space-y-4">
+          {/* Row 1: District Chips & Listing Type */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* Districts */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
+              {districts.map(d => (
+                <button
+                  key={d.id}
+                  id={`filter-district-${d.id.replace(/\//g, '-')}`}
+                  onClick={() => setFilters(prev => ({ ...prev, district: d.id }))}
+                  className={`text-xs px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition ${
+                    filters.district === d.id
+                      ? 'bg-slate-900 text-amber-300 font-bold shadow-sm'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {d.label}
+                </button>
+              ))}
             </div>
 
-            {/* School Rating Filter */}
+            {/* Reset Button */}
+            <button
+              id="btn-reset-filters"
+              onClick={onResetFilters}
+              className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-900 font-medium py-1 px-2 rounded-lg hover:bg-slate-100 transition whitespace-nowrap ml-auto"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>필터 초기화</span>
+            </button>
+          </div>
+
+          {/* Row 2: Secondary Dropdowns & Quick Toggles */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 pt-2 border-t border-slate-100">
+            {/* Listing Type Select */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
-                최소 학군 평가 (GreatSchools)
-              </label>
+              <label className="block text-[10px] text-slate-400 font-medium mb-1">거래 형태</label>
               <select
-                value={filters.minSchoolRating}
-                onChange={(e) => onFilterChange({ minSchoolRating: Number(e.target.value) })}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium"
+                id="select-listing-type"
+                value={filters.listingType}
+                onChange={(e) => setFilters(prev => ({ ...prev, listingType: e.target.value as any }))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 transition"
               >
-                <option value={0}>학군 점수 무관</option>
-                <option value={7}>7점 이상 (우수 학군)</option>
-                <option value={8}>8점 이상 (최상위 학군)</option>
-                <option value={9}>9점 이상 (명문 학군: 포트리, 클로스터)</option>
-                <option value={10}>10점 만점 (테너플라이, 릿지우드)</option>
+                {listingTypes.map(t => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
               </select>
             </div>
 
-            {/* Quick Checkboxes */}
-            <div className="flex flex-col gap-2 justify-center">
-              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.openHouseOnly}
-                  onChange={(e) => onFilterChange({ openHouseOnly: e.target.checked })}
-                  className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
-                />
-                <Calendar className="w-3.5 h-3.5 text-amber-600" />
-                <span>오픈하우스(Open House) 예정 매물만</span>
-              </label>
-
-              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.newConstructionOnly}
-                  onChange={(e) => onFilterChange({ newConstructionOnly: e.target.checked })}
-                  className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
-                />
-                <Home className="w-3.5 h-3.5 text-indigo-600" />
-                <span>최신 신축 주택 (New Construction)</span>
-              </label>
+            {/* Property Type Select */}
+            <div>
+              <label className="block text-[10px] text-slate-400 font-medium mb-1">매물 유형</label>
+              <select
+                id="select-property-type"
+                value={filters.propertyType}
+                onChange={(e) => setFilters(prev => ({ ...prev, propertyType: e.target.value as any }))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 transition"
+              >
+                {propertyTypes.map(pt => (
+                  <option key={pt.id} value={pt.id}>{pt.label}</option>
+                ))}
+              </select>
             </div>
 
-            {/* Reset Button in Panel */}
-            <div className="flex items-end">
-              <button
-                onClick={onResetFilters}
-                className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            {/* Rooms Select */}
+            <div>
+              <label className="block text-[10px] text-slate-400 font-medium mb-1">방 개수</label>
+              <select
+                id="select-rooms"
+                value={filters.rooms}
+                onChange={(e) => setFilters(prev => ({ ...prev, rooms: Number(e.target.value) }))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 transition"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>모든 필터 초기화</span>
-              </button>
+                <option value={0}>방 개수 전체</option>
+                <option value={3}>3룸 이상</option>
+                <option value={4}>4룸 이상</option>
+                <option value={5}>5룸 이상 (대형)</option>
+              </select>
+            </div>
+
+            {/* Min Pyeong Select */}
+            <div>
+              <label className="block text-[10px] text-slate-400 font-medium mb-1">최소 전용면적</label>
+              <select
+                id="select-min-pyeong"
+                value={filters.minPyeong}
+                onChange={(e) => setFilters(prev => ({ ...prev, minPyeong: Number(e.target.value) }))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 transition"
+              >
+                <option value={0}>면적 무관</option>
+                <option value={30}>30평 이상 (99㎡+)</option>
+                <option value={40}>40평 이상 (132㎡+)</option>
+                <option value={50}>50평 이상 (165㎡+)</option>
+                <option value={70}>70평 이상 펜트하우스</option>
+              </select>
+            </div>
+
+            {/* Sort Select */}
+            <div>
+              <label className="block text-[10px] text-slate-400 font-medium mb-1">정렬 기준</label>
+              <select
+                id="select-sort-by"
+                value={filters.sortBy}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 transition"
+              >
+                <option value="newest">최신 등록순</option>
+                <option value="price_desc">가격 높은순</option>
+                <option value="price_asc">가격 낮은순</option>
+                <option value="pyeong_desc">전용면적 넓은순</option>
+                <option value="floor_desc">고층 우선</option>
+              </select>
+            </div>
+
+            {/* Toggle VIP / Subway Checkboxes */}
+            <div className="flex flex-col justify-end gap-1.5 pb-1">
+              <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={filters.subwayWithin10Min}
+                  onChange={(e) => setFilters(prev => ({ ...prev, subwayWithin10Min: e.target.checked }))}
+                  className="rounded text-amber-600 focus:ring-amber-500 w-3.5 h-3.5"
+                />
+                <span>역세권 10분내</span>
+              </label>
+              <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={filters.vipOnly}
+                  onChange={(e) => setFilters(prev => ({ ...prev, vipOnly: e.target.checked }))}
+                  className="rounded text-amber-600 focus:ring-amber-500 w-3.5 h-3.5"
+                />
+                <span className="font-semibold text-amber-700">VIP 전속만</span>
+              </label>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Active Filter Chips */}
-        {hasActiveFilters && (
-          <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-slate-400 font-semibold">적용된 조건:</span>
-            {filters.town !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold">
-                지역: {filters.town}
-                <X className="w-3 h-3 cursor-pointer hover:text-blue-900" onClick={() => onFilterChange({ town: 'all' })} />
-              </span>
-            )}
-            {filters.propertyType !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold">
-                유형: {filters.propertyType}
-                <X className="w-3 h-3 cursor-pointer hover:text-blue-900" onClick={() => onFilterChange({ propertyType: 'all' })} />
-              </span>
-            )}
-            {filters.beds > 0 && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold">
-                {filters.beds}베드 이상
-                <X className="w-3 h-3 cursor-pointer hover:text-blue-900" onClick={() => onFilterChange({ beds: 0 })} />
-              </span>
-            )}
-            {filters.minSchoolRating > 0 && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-semibold">
-                학군 {filters.minSchoolRating}점 이상
-                <X className="w-3 h-3 cursor-pointer hover:text-emerald-900" onClick={() => onFilterChange({ minSchoolRating: 0 })} />
-              </span>
-            )}
-            {filters.openHouseOnly && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 text-xs font-semibold">
-                오픈하우스 포함
-                <X className="w-3 h-3 cursor-pointer hover:text-amber-900" onClick={() => onFilterChange({ openHouseOnly: false })} />
-              </span>
-            )}
-            {filters.searchQuery && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold">
-                검색어: "{filters.searchQuery}"
-                <X className="w-3 h-3 cursor-pointer hover:text-slate-900" onClick={() => onFilterChange({ searchQuery: '' })} />
-              </span>
-            )}
+        {/* Results Counter & Active Query Status */}
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-4 px-1">
+          <p>
+            총 <strong className="text-slate-900 font-bold text-sm">{properties.length}개</strong>의 
+            하이엔드 매물이 검색되었습니다.
+          </p>
+          {filters.searchQuery && (
+            <p className="text-amber-700 font-medium">
+              &quot;{filters.searchQuery}&quot; 검색 결과
+            </p>
+          )}
+        </div>
+
+        {/* No Results Fallback */}
+        {properties.length === 0 ? (
+          <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
+            <Filter className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-slate-800">일치하는 매물이 없습니다</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              설정하신 필터 조건에 부합하는 매물이 현재 등록되어 있지 않습니다. 
+              필터를 초기화하거나 1:1 VIP 전속 매칭 서비스를 통해 비공개 오프마켓 매물을 의뢰해보세요.
+            </p>
             <button
               onClick={onResetFilters}
-              className="text-xs text-rose-600 hover:text-rose-700 font-bold ml-1 cursor-pointer"
+              className="mt-4 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 text-xs font-semibold"
             >
-              전체 해제
+              필터 전체 초기화
             </button>
+          </div>
+        ) : viewMode === 'split' ? (
+          /* Split View: Left Map (Fixed/Sticky) + Right Scrollable Properties */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Interactive Map Column */}
+            <div className="lg:col-span-6 lg:sticky lg:top-24 h-[460px] lg:h-[calc(100vh-140px)]">
+              <InteractiveMap
+                properties={properties}
+                selectedProperty={selectedProperty}
+                onSelectProperty={onSelectProperty}
+                hoveredPropertyId={hoveredPropertyId}
+                unit={unit}
+                currency={currency}
+              />
+            </div>
+
+            {/* Right Property Cards Column */}
+            <div className="lg:col-span-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                {properties.map(property => (
+                  <div
+                    key={property.id}
+                    onMouseEnter={() => setHoveredPropertyId(property.id)}
+                    onMouseLeave={() => setHoveredPropertyId(null)}
+                  >
+                    <PropertyCard
+                      property={property}
+                      isFavorite={favorites.includes(property.id)}
+                      onToggleFavorite={onToggleFavorite}
+                      onSelectProperty={onSelectProperty}
+                      unit={unit}
+                      currency={currency}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Grid View: Full 3-Column Responsive Grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {properties.map(property => (
+              <PropertyCard
+                key={property.id}
+                property={property}
+                isFavorite={favorites.includes(property.id)}
+                onToggleFavorite={onToggleFavorite}
+                onSelectProperty={onSelectProperty}
+                unit={unit}
+                currency={currency}
+              />
+            ))}
           </div>
         )}
       </div>
-
-      {/* Map View Mode */}
-      {viewMode === 'map' && (
-        <InteractiveNJMap
-          properties={properties}
-          currency={currency}
-          unit={unit}
-          onSelectProperty={onSelectProperty}
-        />
-      )}
-
-      {/* Grid or List View Mode */}
-      {viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.map((prop) => (
-            <PropertyCard
-              key={prop.id}
-              property={prop}
-              currency={currency}
-              unit={unit}
-              isFavorite={favorites.includes(prop.id)}
-              onToggleFavorite={onToggleFavorite}
-              onSelectProperty={onSelectProperty}
-            />
-          ))}
-        </div>
-      )}
-
-      {viewMode === 'list' && (
-        <div className="space-y-4">
-          {properties.map((prop) => (
-            <div
-              key={prop.id}
-              onClick={() => onSelectProperty(prop)}
-              className="bg-white rounded-xl p-4 border border-slate-200 hover:border-blue-400 hover:shadow-lg transition-all flex flex-col sm:flex-row gap-4 cursor-pointer"
-            >
-              <div className="sm:w-64 h-48 sm:h-auto shrink-0 relative rounded-lg overflow-hidden bg-slate-100">
-                <img
-                  src={prop.images[0]}
-                  alt={prop.titleKo}
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white">
-                  {prop.listingType === 'sale' ? '매매' : prop.listingType === 'rent' ? '렌트' : '상업용'}
-                </span>
-              </div>
-              <div className="flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span className="font-semibold text-blue-600">{prop.town}</span>
-                    <span>MLS# {prop.mlsNumber}</span>
-                  </div>
-                  <h3 className="font-bold text-slate-900 text-lg mt-1 hover:text-blue-600 transition-colors">
-                    {prop.titleKo}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">{prop.address}</p>
-                  <p className="text-xs text-slate-600 mt-2 line-clamp-2">
-                    {prop.descriptionKo}
-                  </p>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <span className="text-xl font-extrabold text-slate-900">
-                      {formatPrice(prop.price, currency, prop.listingType)}
-                    </span>
-                    <span className="text-xs text-slate-500 ml-2">
-                      ({prop.beds}베드 • {prop.baths}배스 • {formatArea(prop.sqft, unit)})
-                    </span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectProperty(prop);
-                    }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors"
-                  >
-                    상세보기 및 투어 신청
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Empty Fallback State */}
-      {properties.length === 0 && (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-xs my-8 max-w-xl mx-auto">
-          <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-4">
-            <Home className="w-8 h-8" />
-          </div>
-          <h3 className="text-lg font-bold text-slate-900">검색 조건에 맞는 매물이 없습니다</h3>
-          <p className="text-sm text-slate-500 mt-2">
-            선택하신 지역, 가격대, 또는 학군 필터를 넓혀서 다시 검색해 보세요.
-          </p>
-          <button
-            onClick={onResetFilters}
-            className="mt-6 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
-          >
-            모든 필터 초기화하기
-          </button>
-        </div>
-      )}
-    </div>
+    </section>
   );
 };

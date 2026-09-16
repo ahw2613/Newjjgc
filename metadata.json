@@ -1,6 +1,6 @@
 {
-  "name": "NJStreet - 뉴저지 부동산 포털",
-  "description": "뉴저지 한인 맞춤형 부동산 전문 포털. 포트리, 팰팍, 버겐카운티 매매·렌트·상업용 매물 검색, 학군 가이드 및 모기지 계산기",
+  "name": "THE ADDRESS - 디 어드레스 프리미엄 부동산",
+  "description": "국내 하이엔드 주거 및 상업용 부동산 전문 중개 플랫폼. 아파트, 고급빌라, 펜트하우스 매매·전세·월세 실시간 검색, 지도 기반 매물 탐색 및 1:1 VIP 자산관리 컨설팅",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

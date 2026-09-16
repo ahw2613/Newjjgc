@@ -1,92 +1,106 @@
-import React from 'react';
-import { Search, MapPin, Home, DollarSign, Bed, Sparkles, Filter } from 'lucide-react';
-import { FilterState, ListingType, PropertyType } from '../types';
+import React, { useState } from 'react';
+import { Search, MapPin, Building, ChevronDown, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { FilterState, ListingType } from '../types';
 
 interface HeroSearchProps {
   filters: FilterState;
-  onFilterChange: (newFilters: Partial<FilterState>) => void;
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
   onSearchSubmit: () => void;
-  matchingCount: number;
-  onSelectQuickTag: (tag: { town?: string; propertyType?: PropertyType; openHouse?: boolean; schoolMin?: number }) => void;
+  onSelectTag: (keyword: string) => void;
 }
 
 export const HeroSearch: React.FC<HeroSearchProps> = ({
   filters,
-  onFilterChange,
+  setFilters,
   onSearchSubmit,
-  matchingCount,
-  onSelectQuickTag
+  onSelectTag
 }) => {
-  const towns = [
-    { label: '전체 뉴저지 지역 (All Areas)', value: 'all' },
-    { label: '포트리 (Fort Lee)', value: '포트리 (Fort Lee)' },
-    { label: '팰리세이즈 파크 (Palisades Park)', value: '팰리세이즈 파크 (Palisades Park)' },
-    { label: '테너플라이 (Tenafly)', value: '테너플라이 (Tenafly)' },
-    { label: '클로스터 (Closter)', value: '클로스터 (Closter)' },
-    { label: '크레스킬 (Cresskill)', value: '크레스킬 (Cresskill)' },
-    { label: '에지워터 (Edgewater)', value: '에지워터 (Edgewater)' },
-    { label: '릿지우드 (Ridgewood)', value: '릿지우드 (Ridgewood)' },
-    { label: '잉글우드 클리프 (Englewood Cliffs)', value: '잉글우드 클리프 (Englewood Cliffs)' },
-    { label: '저지시티 (Jersey City)', value: '저지시티 (Jersey City)' }
+  const [activeTab, setActiveTab] = useState<'all' | ListingType>('all');
+  const [keyword, setKeyword] = useState(filters.searchQuery);
+
+  const tabs: { id: 'all' | ListingType; label: string }[] = [
+    { id: 'all', label: '전체 매물' },
+    { id: 'sale', label: '매매' },
+    { id: 'jeonse', label: '전세' },
+    { id: 'rent', label: '월세' },
+    { id: 'commercial', label: '상업용 · 빌딩' }
   ];
 
-  const propertyTypes = [
-    { label: '모든 주택 유형', value: 'all' },
-    { label: '단독주택 (Single Family)', value: 'single_family' },
-    { label: '콘도 / 타운하우스 (Condo)', value: 'condo_townhouse' },
-    { label: '다가구 (2-Family / Multi)', value: 'multi_family' },
-    { label: '상업용 / 오피스 (Commercial)', value: 'commercial' }
+  const popularTags = [
+    '나인원 한남',
+    '아크로 서울포레스트',
+    'PH129 청담',
+    '래미안 원베일리',
+    '압구정 현대 재건축',
+    '테헤란로 신축빌딩',
+    '광주 봉선동 펜트'
   ];
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFilters(prev => ({
+      ...prev,
+      listingType: activeTab,
+      searchQuery: keyword
+    }));
+    onSearchSubmit();
+  };
+
+  const handleTabSelect = (tabId: 'all' | ListingType) => {
+    setActiveTab(tabId);
+    setFilters(prev => ({
+      ...prev,
+      listingType: tabId
+    }));
+  };
 
   return (
-    <section className="relative bg-slate-900 text-white overflow-hidden py-12 md:py-20">
-      {/* Background with layered gradient and high-end architectural photo */}
-      <div className="absolute inset-0 z-0 opacity-25 mix-blend-overlay">
+    <section id="hero-section" className="relative min-h-[640px] lg:min-h-[720px] flex items-center justify-center pt-24 pb-16 overflow-hidden bg-slate-950">
+      {/* Background Media with Gradient Mask */}
+      <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=2000&q=80"
-          alt="New Jersey Real Estate"
-          className="w-full h-full object-cover"
+          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85"
+          alt="Luxury Architecture"
+          className="w-full h-full object-cover object-center opacity-40 scale-105 transform animate-pulse duration-10000"
         />
+        {/* Multilayered Luxury Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/50" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/90 to-slate-900/80 z-0"></div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Title area */}
-        <div className="text-center max-w-3xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-semibold mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>2026 뉴저지 최신 실시간 매물 & 학군 데이터베이스</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-            뉴저지 내 집 마련부터 명문 학군까지,<br className="hidden sm:inline" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300">
-              한인 맞춤 부동산 원스톱 솔루션
-            </span>
-          </h1>
-          <p className="mt-3 text-sm sm:text-base text-slate-300">
-            포트리, 팰팍, 버겐카운티 전 지역 매매 · 렌트 · 상업용 매물 검색과 실시간 학군 및 NYC 통근 분석
-          </p>
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full">
+        {/* Eyebrow / Tagline */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-md">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>Prestige Living · Verified Value</span>
         </div>
 
-        {/* Search Card Container */}
-        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-2xl text-slate-900 border border-slate-100 max-w-5xl mx-auto">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 border-b border-slate-200 pb-3 mb-4 overflow-x-auto no-scrollbar">
-            {(
-              [
-                { id: 'all', label: '전체 매물 (All)' },
-                { id: 'sale', label: '매매 (Buy)' },
-                { id: 'rent', label: '렌트 (Rent)' },
-                { id: 'commercial', label: '상업용 (Commercial)' }
-              ] as { id: 'all' | ListingType; label: string }[]
-            ).map((tab) => (
+        {/* Hero Title */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.2] mb-4">
+          대한민국 하이엔드 주거와 <br className="hidden sm:inline" />
+          <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 bg-clip-text text-transparent">
+            프라이빗 자산관리의 기준
+          </span>
+        </h1>
+
+        <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-300 font-light mb-10 leading-relaxed">
+          한남·청담·성수·반포의 최상위 랜드마크 펜트하우스부터 테헤란로 상업용 사옥까지, 
+          엄선된 검증 매물과 1:1 VIP 전속 공인중개 서비스를 제공합니다.
+        </p>
+
+        {/* Search Box Container */}
+        <div className="max-w-4xl mx-auto bg-slate-900/90 backdrop-blur-xl p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-2xl shadow-black/50 text-left">
+          {/* Tab Selector */}
+          <div className="flex items-center gap-1 sm:gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar border-b border-slate-800/80">
+            {tabs.map(tab => (
               <button
                 key={tab.id}
-                onClick={() => onFilterChange({ listingType: tab.id })}
-                className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  filters.listingType === tab.id
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                id={`hero-tab-${tab.id}`}
+                onClick={() => handleTabSelect(tab.id)}
+                className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-amber-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                 }`}
               >
                 {tab.label}
@@ -94,157 +108,100 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             ))}
           </div>
 
-          {/* Search Inputs Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* Town / Region */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                희망 지역 (Town)
-              </label>
-              <select
-                value={filters.town}
-                onChange={(e) => onFilterChange({ town: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-medium"
-              >
-                {towns.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Property Type */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                <Home className="w-3.5 h-3.5 text-blue-600" />
-                주택 유형 (Property Type)
-              </label>
-              <select
-                value={filters.propertyType}
-                onChange={(e) => onFilterChange({ propertyType: e.target.value as any })}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-medium"
-              >
-                {propertyTypes.map((pt) => (
-                  <option key={pt.value} value={pt.value}>
-                    {pt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Bedrooms */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                <Bed className="w-3.5 h-3.5 text-blue-600" />
-                최소 침실 수 (Beds)
-              </label>
-              <select
-                value={filters.beds}
-                onChange={(e) => onFilterChange({ beds: Number(e.target.value) })}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-medium"
-              >
-                <option value={0}>침실 수 무관 (Any Beds)</option>
-                <option value={1}>1베드 이상</option>
-                <option value={2}>2베드 이상</option>
-                <option value={3}>3베드 이상</option>
-                <option value={4}>4베드 이상</option>
-                <option value={5}>5베드 이상</option>
-              </select>
-            </div>
-
-            {/* Keyword / Address search & Submit */}
-            <div className="flex flex-col justify-end">
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                <Search className="w-3.5 h-3.5 text-blue-600" />
-                키워드 / 도로명 검색
-              </label>
-              <div className="relative flex items-center">
+          {/* Form Controls */}
+          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-3 items-center">
+            {/* Main Keyword Input */}
+            <div className="md:col-span-6 relative">
+              <label className="block text-[11px] font-medium text-slate-400 mb-1 ml-1">지역 / 단지명 / 매물명</label>
+              <div className="relative">
+                <MapPin className="w-4 h-4 text-amber-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
+                  id="hero-search-input"
                   type="text"
-                  placeholder="예: 리버뷰, 수영장, 신축..."
-                  value={filters.searchQuery}
-                  onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
-                  onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-3 pr-8 py-2.5 text-xs sm:text-sm text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-medium"
+                  placeholder="예: 나인원한남, 성수, 청담, 압구정 현대..."
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Quick Search Action Bar */}
-          <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-500 mr-1 flex items-center gap-1">
-                <Filter className="w-3 h-3 text-slate-400" />
-                인기 태그:
-              </span>
-              <button
-                type="button"
-                onClick={() => onSelectQuickTag({ town: '포트리 (Fort Lee)' })}
-                className="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 transition-colors cursor-pointer"
-              >
-                📍 포트리 (GWB 5분)
-              </button>
-              <button
-                type="button"
-                onClick={() => onSelectQuickTag({ town: '팰리세이즈 파크 (Palisades Park)' })}
-                className="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 transition-colors cursor-pointer"
-              >
-                🏘️ 팰팍 브로드애비뉴
-              </button>
-              <button
-                type="button"
-                onClick={() => onSelectQuickTag({ town: '테너플라이 (Tenafly)', schoolMin: 9 })}
-                className="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 transition-colors cursor-pointer"
-              >
-                🎓 테너플라이 10점 학군
-              </button>
-              <button
-                type="button"
-                onClick={() => onSelectQuickTag({ propertyType: 'multi_family' })}
-                className="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-700 transition-colors cursor-pointer"
-              >
-                💰 2-Family 임대수익형
-              </button>
-              <button
-                type="button"
-                onClick={() => onSelectQuickTag({ openHouse: true })}
-                className="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 transition-colors cursor-pointer"
-              >
-                📅 이번 주말 오픈하우스
-              </button>
+            {/* Region Select */}
+            <div className="md:col-span-3">
+              <label className="block text-[11px] font-medium text-slate-400 mb-1 ml-1">주요 권역 선택</label>
+              <div className="relative">
+                <select
+                  id="hero-district-select"
+                  value={filters.district}
+                  onChange={(e) => setFilters(prev => ({ ...prev, district: e.target.value }))}
+                  className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-3 text-sm text-slate-200 focus:outline-none focus:border-amber-500 transition appearance-none cursor-pointer"
+                >
+                  <option value="all">권역 전체 (서울·수도권·광주)</option>
+                  <option value="용산/한남">용산 / 한남동 권역</option>
+                  <option value="강남/청담">강남 / 청담·압구정</option>
+                  <option value="성동/성수">성동 / 성수동 서울숲</option>
+                  <option value="서초/반포">서초 / 반포 한강변</option>
+                  <option value="송파/잠실">송파 / 잠실 롯데월드타워</option>
+                  <option value="여의도/마포">여의도 / 마포 한강</option>
+                  <option value="광주/봉선">광주 / 봉선동 명문학군</option>
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
-            <button
-              onClick={onSearchSubmit}
-              className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-lg shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-              id="btn-hero-search-submit"
-            >
-              <Search className="w-4 h-4" />
-              <span>매물 검색하기 ({matchingCount}개 발견)</span>
-            </button>
+            {/* Search Button */}
+            <div className="md:col-span-3 pt-1 md:pt-4">
+              <button
+                id="btn-hero-submit"
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold py-3 px-5 rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95"
+              >
+                <Search className="w-4 h-4 stroke-[2.5]" />
+                <span>매물 검색하기</span>
+              </button>
+            </div>
+          </form>
+
+          {/* Quick Tag Pills */}
+          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] text-slate-400 font-medium mr-1 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              인기 추천:
+            </span>
+            {popularTags.map(tag => (
+              <button
+                key={tag}
+                id={`quick-tag-${tag.replace(/\s+/g, '-')}`}
+                type="button"
+                onClick={() => {
+                  setKeyword(tag);
+                  onSelectTag(tag);
+                }}
+                className="text-[11px] px-2.5 py-1 rounded-full bg-slate-800/70 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 border border-slate-700/60 transition"
+              >
+                #{tag}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Highlight trust stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto text-center border-t border-slate-800/80 pt-6">
+        {/* Real Estate Credibility Metrics */}
+        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto border-t border-slate-800/80 pt-8 text-slate-300">
           <div>
-            <p className="text-xl sm:text-2xl font-black text-white">100%</p>
-            <p className="text-xs text-slate-400 mt-0.5">NJ MLS 실시간 검증 매물</p>
+            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">1조 8,500억+</p>
+            <p className="text-xs text-slate-400 mt-1">누적 하이엔드 중개 실적</p>
           </div>
           <div>
-            <p className="text-xl sm:text-2xl font-black text-blue-400">1:1 맞춤</p>
-            <p className="text-xs text-slate-400 mt-0.5">한국어 전문 공인중개사 상담</p>
+            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">99.4%</p>
+            <p className="text-xs text-slate-400 mt-1">VIP 고객 전속 재계약률</p>
           </div>
           <div>
-            <p className="text-xl sm:text-2xl font-black text-emerald-400">학군 & 통근</p>
-            <p className="text-xs text-slate-400 mt-0.5">학교 평가 & 맨해튼 교통 분석</p>
+            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">20억원</p>
+            <p className="text-xs text-slate-400 mt-1">공제증서 보증보험 가입</p>
           </div>
           <div>
-            <p className="text-xl sm:text-2xl font-black text-amber-400">원스톱</p>
-            <p className="text-xs text-slate-400 mt-0.5">변호사·모기지·인스펙션 연계</p>
+            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">1:1 Private</p>
+            <p className="text-xs text-slate-400 mt-1">변호사·세무사 제휴 자산관리</p>
           </div>
         </div>
       </div>

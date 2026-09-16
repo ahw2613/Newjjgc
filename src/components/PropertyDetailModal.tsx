@@ -1,590 +1,673 @@
 import React, { useState } from 'react';
 import { 
   X, 
-  MapPin, 
-  Bed, 
-  Bath, 
-  Maximize, 
-  Calendar, 
-  GraduationCap, 
-  Bus, 
-  Car, 
-  CheckCircle2, 
-  Calculator, 
-  Phone, 
-  Mail, 
-  MessageSquareText, 
-  Send, 
-  Check, 
-  Share2, 
   Heart, 
-  Building2, 
-  DollarSign, 
-  ShieldCheck 
+  Share2, 
+  MapPin, 
+  Building, 
+  Car, 
+  Calendar, 
+  Compass, 
+  ShieldCheck, 
+  GraduationCap, 
+  Train, 
+  Phone, 
+  MessageSquare, 
+  Calculator, 
+  CheckCircle2, 
+  Clock, 
+  Sparkles,
+  DollarSign
 } from 'lucide-react';
-import { CurrencyType, Property, UnitType } from '../types';
-import { formatPrice, formatArea, calculateMortgage } from '../utils/formatters';
+import { Property, UnitType, CurrencyType, ConsultationInquiry } from '../types';
+import { 
+  formatPropertyPrice, 
+  formatManwonToKorean, 
+  formatManwonToUSD, 
+  formatArea, 
+  calculateAcquisitionTax, 
+  calculateBrokerageFee, 
+  calculateMortgageMonthly 
+} from '../utils/formatters';
 
 interface PropertyDetailModalProps {
-  property: Property;
+  property: Property | null;
   onClose: () => void;
-  currency: CurrencyType;
-  unit: UnitType;
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
+  unit: UnitType;
+  currency: CurrencyType;
+  onSubmitInquiry: (inquiry: Omit<ConsultationInquiry, 'id' | 'createdAt' | 'status'>) => void;
 }
 
 export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
   property,
   onClose,
-  currency,
-  unit,
   isFavorite,
-  onToggleFavorite
+  onToggleFavorite,
+  unit,
+  currency,
+  onSubmitInquiry
 }) => {
+  if (!property) return null;
+
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [tourType, setTourType] = useState<'in_person' | 'video'>('in_person');
-  const [selectedDate, setSelectedDate] = useState('2026-09-20');
-  const [selectedTime, setSelectedTime] = useState('오후 2:00');
-  const [userName, setUserName] = useState('');
-  const [userPhone, setUserPhone] = useState('');
-  const [userKakao, setUserKakao] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userNote, setUserNote] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
+  const [activeTab, setActiveTab] = useState<'info' | 'finance' | 'tour'>('info');
 
-  // Mortgage Calculator state inside modal
-  const [downPaymentPercent, setDownPaymentPercent] = useState(20);
-  const [interestRate, setInterestRate] = useState(6.5);
-  const [loanTerm, setLoanTerm] = useState<15 | 30>(30);
+  // 금융 계산기 상태
+  const [houseCount, setHouseCount] = useState<1 | 2 | 3>(1);
+  const [loanRatio, setLoanRatio] = useState<number>(40); // LTV 40%
+  const [interestRate, setInterestRate] = useState<number>(4.1);
+  const [loanYears, setLoanYears] = useState<number>(30);
 
-  const mortgage = calculateMortgage(
-    property.price,
-    downPaymentPercent,
-    interestRate,
-    loanTerm,
-    property.propertyTaxAnnual,
-    property.hoaFeeMonthly
-  );
+  // 투어 예약 폼 상태
+  const [tourName, setTourName] = useState('');
+  const [tourPhone, setTourPhone] = useState('');
+  const [tourDate, setTourDate] = useState('');
+  const [tourTime, setTourTime] = useState('오후 2:00');
+  const [tourSubmitted, setTourSubmitted] = useState(false);
+
+  // 세금 및 대출 계산
+  const basePriceForTax = property.listingType === 'sale' ? property.price : (property.deposit || property.price);
+  const taxInfo = calculateAcquisitionTax(basePriceForTax, houseCount);
+  const feeInfo = calculateBrokerageFee(basePriceForTax, property.listingType);
+  const loanPrincipal = Math.round(basePriceForTax * (loanRatio / 100));
+  const mortgageInfo = calculateMortgageMonthly(loanPrincipal, interestRate, loanYears);
 
   const handleShare = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
+      alert('매물 링크가 클립보드에 복사되었습니다.');
     }
   };
 
   const handleTourSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userName.trim() || !userPhone.trim()) {
-      alert('성함과 연락처를 입력해 주세요.');
+    if (!tourName || !tourPhone) {
+      alert('이름과 연락처를 입력해주세요.');
       return;
     }
-    setIsSubmitted(true);
+    onSubmitInquiry({
+      name: tourName,
+      phone: tourPhone,
+      type: 'tour',
+      propertyId: property.id,
+      propertyTitle: property.titleKo,
+      preferredDate: tourDate || '가장 빠른 일정',
+      preferredTime: tourTime,
+      notes: `매물 방문 투어 신청 [${property.titleKo}]`
+    });
+    setTourSubmitted(true);
   };
 
+  const exclusiveRatio = Math.round((property.exclusivePyeong / property.supplyPyeong) * 100);
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-xs flex justify-center p-2 sm:p-4 md:p-6 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl max-w-5xl w-full overflow-hidden shadow-2xl my-auto border border-slate-200 relative flex flex-col max-h-[92vh]">
-        {/* Header Bar */}
-        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md px-4 sm:px-6 py-3.5 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800 shrink-0">
-              {property.listingType === 'sale' ? '매매' : property.listingType === 'rent' ? '렌트' : '상업용'}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+      <div 
+        id="property-detail-modal"
+        className="relative w-full max-w-5xl bg-white sm:rounded-3xl shadow-2xl overflow-hidden border border-slate-200 my-auto max-h-screen sm:max-h-[92vh] flex flex-col"
+      >
+        {/* Top Header Bar */}
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 sm:px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2 truncate pr-4">
+            <span className="text-xs px-2.5 py-1 rounded bg-slate-900 text-amber-300 font-bold uppercase">
+              {property.district}
             </span>
-            <h2 className="font-bold text-sm sm:text-base text-slate-900 truncate">
+            <span className="text-sm font-bold text-slate-800 truncate hidden sm:inline">
               {property.titleKo}
-            </h2>
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleShare}
-              className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-              title="매물 링크 공유"
-            >
-              {copiedLink ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-            </button>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => onToggleFavorite(property.id)}
-              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+              className="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition"
               title="관심 매물 저장"
             >
-              <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
             </button>
             <button
-              onClick={onClose}
-              className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-              aria-label="닫기"
+              onClick={handleShare}
+              className="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition"
+              title="매물 공유"
             >
-              <X className="w-5 h-5" />
+              <Share2 className="w-5 h-5" />
+            </button>
+            <button
+              id="btn-close-modal"
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition"
+              title="닫기"
+            >
+              <X className="w-6 h-6" />
             </button>
           </div>
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="overflow-y-auto p-4 sm:p-6 space-y-6">
-          {/* Photo Gallery with Hero and Thumbnails */}
-          <div>
-            <div className="aspect-16/9 rounded-xl overflow-hidden bg-slate-900 relative shadow-inner">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8">
+          {/* Gallery Section */}
+          <div className="space-y-3">
+            {/* Main Stage Image */}
+            <div className="relative aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden bg-slate-950 shadow-inner">
               <img
                 src={property.images[activeImageIndex]}
                 alt={property.titleKo}
-                className="w-full h-full object-cover transition-all duration-300"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-xs text-white text-xs font-medium px-3 py-1 rounded-full">
-                {activeImageIndex + 1} / {property.images.length}
+              <div className="absolute top-4 left-4 flex gap-2">
+                <span className="px-3 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-xs font-semibold">
+                  사진 {activeImageIndex + 1} / {property.images.length}
+                </span>
               </div>
             </div>
 
-            {/* Thumbnails */}
-            <div className="flex gap-2 mt-2.5 overflow-x-auto pb-1">
+            {/* Thumbnail Navigation Bar */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
               {property.images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`w-20 h-14 sm:w-24 sm:h-16 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
-                    activeImageIndex === idx ? 'border-blue-600 ring-2 ring-blue-400/40' : 'border-transparent opacity-70 hover:opacity-100'
+                  className={`relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden border-2 transition ${
+                    activeImageIndex === idx ? 'border-amber-500 ring-2 ring-amber-400/40' : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt={`사진 ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img src={img} alt="thumb" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Pricing & Key Specifications Banner */}
-          <div className="bg-slate-50 rounded-xl p-4 sm:p-6 border border-slate-200">
-            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-              <div>
-                <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  {formatPrice(property.price, currency, property.listingType)}
-                </span>
-                <span className="text-xs text-slate-500 block sm:inline sm:ml-2">
-                  {currency === 'USD' 
-                    ? `(원화 환산: ${formatPrice(property.price, 'KRW', property.listingType)})` 
-                    : `(USD: $${property.price.toLocaleString()})`}
-                </span>
+          {/* Title & Core Price Banner */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            <div>
+              <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                <span>{property.roadAddress}</span>
               </div>
-              <div className="text-xs text-slate-500">
-                <span>MLS# <strong className="text-slate-800">{property.mlsNumber}</strong></span>
-              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                {property.titleKo}
+              </h1>
+              {property.subTitle && (
+                <p className="text-sm text-slate-600 mt-1">{property.subTitle}</p>
+              )}
             </div>
 
-            <p className="text-sm font-semibold text-slate-700 mt-1.5 flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>{property.address}, {property.town}, {property.county} {property.zipCode}</span>
-            </p>
-
-            {/* Quick Specs Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-200">
-              <div className="bg-white p-3 rounded-lg border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-semibold block">침실 / 욕실</span>
-                <span className="text-sm font-bold text-slate-900 mt-0.5 block">
-                  {property.beds} Beds • {property.baths} Baths
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-lg border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-semibold block">실내 전용 면적</span>
-                <span className="text-sm font-bold text-slate-900 mt-0.5 block truncate">
-                  {formatArea(property.sqft, unit)}
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-lg border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-semibold block">연간 재산세 (Tax)</span>
-                <span className="text-sm font-bold text-slate-900 mt-0.5 block">
-                  {property.propertyTaxAnnual > 0 ? `$${property.propertyTaxAnnual.toLocaleString()}/년` : '해당 없음'}
-                </span>
-              </div>
-              <div className="bg-white p-3 rounded-lg border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-semibold block">월 관리비 (HOA)</span>
-                <span className="text-sm font-bold text-slate-900 mt-0.5 block">
-                  {property.hoaFeeMonthly > 0 ? `$${property.hoaFeeMonthly.toLocaleString()}/월` : '$0 (없음)'}
-                </span>
-              </div>
+            <div className="bg-slate-900 text-white p-4 rounded-2xl md:text-right shadow-xl shadow-slate-900/10 min-w-[280px]">
+              <span className="text-[11px] text-amber-400 font-semibold uppercase tracking-wider block">
+                {property.listingType === 'sale' ? '확정 매매가' : property.listingType === 'jeonse' ? '임대 전세가' : '월세 보증금/월'}
+              </span>
+              <p className="text-2xl sm:text-3xl font-black text-white mt-0.5">
+                {formatPropertyPrice(property.listingType, property.price, property.deposit, property.monthlyRent)}
+              </p>
+              {currency === 'USD' && (
+                <p className="text-xs text-slate-400 mt-1">
+                  환산: {formatManwonToUSD(property.price)} (USD)
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Two Columns: Left Details, Right Tour & Mortgage */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column (2 Cols) */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Detailed Description */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-blue-600" />
-                  매물 상세 설명 (Korean & English)
-                </h3>
-                <p className="text-sm text-slate-700 leading-relaxed font-normal">
-                  {property.descriptionKo}
-                </p>
-                <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 italic leading-relaxed">
-                  {property.descriptionEn}
+          {/* Tab Menu Navigation within Modal */}
+          <div className="flex items-center gap-2 border-b border-slate-200">
+            <button
+              onClick={() => setActiveTab('info')}
+              className={`pb-3 px-4 text-sm font-bold border-b-2 transition ${
+                activeTab === 'info' ? 'border-amber-500 text-amber-700' : 'border-transparent text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              매물 종합 스펙
+            </button>
+            <button
+              onClick={() => setActiveTab('finance')}
+              className={`pb-3 px-4 text-sm font-bold border-b-2 transition ${
+                activeTab === 'finance' ? 'border-amber-500 text-amber-700' : 'border-transparent text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              취득세 & 대출 시뮬레이터
+            </button>
+            <button
+              onClick={() => setActiveTab('tour')}
+              className={`pb-3 px-4 text-sm font-bold border-b-2 transition ${
+                activeTab === 'tour' ? 'border-amber-500 text-amber-700' : 'border-transparent text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              1:1 VIP 방문투어 신청
+            </button>
+          </div>
+
+          {/* TAB 1: General Info & Specifications */}
+          {activeTab === 'info' && (
+            <div className="space-y-8 animate-in fade-in duration-200">
+              {/* Core 8 Specs Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">전용 / 공급면적</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    {formatArea(property.exclusivePyeong, property.exclusiveAreaM2, unit)} / {formatArea(property.supplyPyeong, property.supplyAreaM2, unit)}
+                  </span>
+                  <span className="text-[10px] text-amber-600 font-semibold">전용률 약 {exclusiveRatio}%</span>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">내부 구조</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    방 {property.rooms}개 / 욕실 {property.baths}개
+                  </span>
+                  <span className="text-[10px] text-slate-500">{property.direction} (거실 기준)</span>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">해당층 / 총 층수</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    {property.floor}층 / 총 {property.totalFloors}층
+                  </span>
+                  <span className="text-[10px] text-slate-500">엘리베이터 단독 연계</span>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">주차 가능 대수</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    세대당 {property.parking}대 (지정)
+                  </span>
+                  <span className="text-[10px] text-emerald-600 font-semibold">광폭 주차공간</span>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">월 평균 관리비</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    약 {property.maintenanceCost}만원
+                  </span>
+                  <span className="text-[10px] text-slate-500">실비 정산 방식</span>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">입주 가능 시기</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    {property.moveInDate}
+                  </span>
+                  <span className="text-[10px] text-slate-500">협의 가능</span>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">준공 인가년도</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    {property.builtYear}년도
+                  </span>
+                  <span className="text-[10px] text-slate-500">상태 최상급</span>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm">
+                  <span className="text-[11px] text-slate-400 block font-medium">매물 등록번호</span>
+                  <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    {property.id.toUpperCase()}
+                  </span>
+                  <span className="text-[10px] text-emerald-600 font-semibold">실매물 검증완료</span>
                 </div>
               </div>
 
-              {/* Special Features Checklist */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  매물 주요 특징 및 시설
+              {/* Agent Real Evaluation Description */}
+              <div className="space-y-3">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-amber-600" />
+                  <span>디 어드레스 전속 공인중개사 실사 브리핑</span>
                 </h3>
+                <div className="bg-amber-50/50 p-5 rounded-2xl border border-amber-200/60 text-sm text-slate-700 leading-relaxed">
+                  {property.descriptionKo}
+                </div>
+              </div>
+
+              {/* Features & Amenities List */}
+              <div className="space-y-3">
+                <h3 className="text-base font-bold text-slate-900">단지 특장점 및 프리미엄 옵션</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {property.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                      <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-[10px]">✓</span>
-                      <span>{feat}</span>
+                  {property.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl text-xs text-slate-800 font-medium">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span>{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* School District Information */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-indigo-600" />
-                    배정 학군 및 공립학교 평가
-                  </span>
-                  <span className="text-xs font-semibold text-slate-400">GreatSchools Rating 기준</span>
-                </h3>
-                <div className="space-y-2.5">
-                  {property.schools.map((school, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-900">{school.name}</span>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">
-                            {school.type}
+              {/* Location: Subway & Schools */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+                {/* Subway Transit */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Train className="w-4 h-4 text-amber-600" />
+                    <span>대중교통 및 지하철 연계</span>
+                  </h3>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-2">
+                    <p className="text-sm font-bold text-slate-800">{property.subway.station}</p>
+                    <p className="text-xs text-slate-600">도보 {property.subway.walkMinutes}분 소요</p>
+                    <div className="flex gap-1.5 pt-1">
+                      {property.subway.lines.map((line, i) => (
+                        <span key={i} className="text-[11px] px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-medium">
+                          {line}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schools & Education */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-amber-600" />
+                    <span>배정 학군 및 교육 환경</span>
+                  </h3>
+                  <div className="space-y-2">
+                    {property.schools.length > 0 ? (
+                      property.schools.map((school, i) => (
+                        <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between">
+                          <div>
+                            <span className="text-xs font-bold text-slate-800">{school.name}</span>
+                            <span className="text-[11px] text-slate-500 block">{school.ratingNote}</span>
+                          </div>
+                          <span className="text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">
+                            {school.distance}
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-500 mt-0.5 block">거리: {school.distance}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-base font-black text-emerald-700">
-                          {school.rating}
-                          <span className="text-xs font-semibold text-slate-400">/10</span>
-                        </span>
-                        <span className="block text-[10px] font-bold text-emerald-600">
-                          {school.rating >= 9 ? '최우수' : school.rating >= 7 ? '우수' : '양호'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                      ))
+                    ) : (
+                      <p className="text-xs text-slate-500 p-4 bg-slate-50 rounded-xl">
+                        상업용 빌딩 또는 업무 권역 매물로 별도 주거 학군 배정이 적용되지 않습니다.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: Financial Simulator (Taxes, Brokerage Fee, Mortgage) */}
+          {activeTab === 'finance' && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                <strong>안내:</strong> 본 계산 결과는 국토교통부 법정 중개보수 상한요율 및 현행 지방세법 취득세 표준세율을 기준으로 산출한 예상치이며, 개별 자산 상황 및 다주택 여부에 따라 실제 납부액과 차이가 있을 수 있습니다.
+              </div>
+
+              {/* 1. Acquisition Tax */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <Calculator className="w-4 h-4 text-amber-600" />
+                    <span>예상 취득세 및 부가세율</span>
+                  </h3>
+                  {/* House count toggle */}
+                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+                    <button
+                      onClick={() => setHouseCount(1)}
+                      className={`text-xs px-2.5 py-1 rounded-lg font-medium transition ${
+                        houseCount === 1 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'
+                      }`}
+                    >
+                      1주택(기본)
+                    </button>
+                    <button
+                      onClick={() => setHouseCount(2)}
+                      className={`text-xs px-2.5 py-1 rounded-lg font-medium transition ${
+                        houseCount === 2 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'
+                      }`}
+                    >
+                      2주택
+                    </button>
+                    <button
+                      onClick={() => setHouseCount(3)}
+                      className={`text-xs px-2.5 py-1 rounded-lg font-medium transition ${
+                        houseCount === 3 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'
+                      }`}
+                    >
+                      3주택 이상
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  <div className="bg-white p-3 rounded-xl border border-slate-100">
+                    <span className="text-[10px] text-slate-400">적용 세율</span>
+                    <span className="text-base font-bold text-slate-900 block">{taxInfo.taxRate}%</span>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-100">
+                    <span className="text-[10px] text-slate-400">순수 취득세</span>
+                    <span className="text-base font-bold text-slate-900 block">{formatManwonToKorean(taxInfo.acquisitionTax)}</span>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-100">
+                    <span className="text-[10px] text-slate-400">지방교육세+농특세</span>
+                    <span className="text-base font-bold text-slate-900 block">{formatManwonToKorean(taxInfo.localEduTax + taxInfo.ruralSpecialTax)}</span>
+                  </div>
+                  <div className="bg-amber-50 p-3 rounded-xl border border-amber-200">
+                    <span className="text-[10px] text-amber-800 font-bold">총 예상 세액</span>
+                    <span className="text-base font-black text-amber-900 block">{formatManwonToKorean(taxInfo.totalTax)}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Manhattan / NYC Commute analysis */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  <Car className="w-4 h-4 text-blue-600" />
-                  맨해튼 (NYC) 출퇴근 교통 분석
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="p-3 rounded-lg bg-blue-50/70 border border-blue-100">
-                    <span className="font-bold text-blue-900 block">조지워싱턴브릿지 (GWB) 차량 진입</span>
-                    <span className="text-lg font-extrabold text-blue-700 mt-1 block">
-                      약 {property.commute.gwbDriveMinutes}분 소요
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-lg bg-indigo-50/70 border border-indigo-100">
-                    <span className="font-bold text-indigo-900 block">포트아서리티(PABT) 직통 버스</span>
-                    <span className="text-lg font-extrabold text-indigo-700 mt-1 block">
-                      약 {property.commute.busToPortAuthorityMinutes}분 소요
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-3 text-xs text-slate-600 space-y-1">
-                  <p>• <strong>경유 버스 노선:</strong> {property.commute.busLines.join(', ')}</p>
-                  {property.commute.ferryOrTrain && (
-                    <p>• <strong>페리/기차 안내:</strong> {property.commute.ferryOrTrain}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Built-in Mortgage Calculator for this house */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200">
-                <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  <Calculator className="w-4 h-4 text-blue-600" />
-                  이 매물의 월 예상 주거 비용 계산기 (Mortgage & Taxes)
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-xs">
+              {/* 2. Brokerage Fee */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <h3 className="text-base font-bold text-slate-900">공인중개사 법정 중개보수 한도</h3>
+                <div className="flex items-center justify-between text-sm bg-white p-4 rounded-xl border border-slate-100">
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">
-                      다운페이먼트 (Down Payment): <strong className="text-blue-600">{downPaymentPercent}% (${mortgage.downPaymentAmount.toLocaleString()})</strong>
+                    <p className="font-bold text-slate-800">상한 요율: {feeInfo.feeRate}% (VAT 별도)</p>
+                    <p className="text-xs text-slate-500 mt-0.5">중개보수 {formatManwonToKorean(feeInfo.maxFee)} + 부가세 10%</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-slate-400 block">최종 합계</span>
+                    <span className="text-lg font-bold text-slate-900">{formatManwonToKorean(feeInfo.total)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Mortgage Estimator */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <h3 className="text-base font-bold text-slate-900">주택담보대출 원리금 균등상환 예상</h3>
+                
+                {/* Sliders */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">
+                      대출 비율 (LTV): {loanRatio}% ({formatManwonToKorean(loanPrincipal)})
                     </label>
                     <input
                       type="range"
-                      min={5}
-                      max={50}
+                      min={10}
+                      max={70}
                       step={5}
-                      value={downPaymentPercent}
-                      onChange={(e) => setDownPaymentPercent(Number(e.target.value))}
-                      className="w-full accent-blue-600"
+                      value={loanRatio}
+                      onChange={(e) => setLoanRatio(Number(e.target.value))}
+                      className="w-full accent-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">
-                      예상 모기지 이자율: <strong className="text-blue-600">{interestRate}%</strong>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">
+                      금리: 연 {interestRate}%
                     </label>
                     <input
                       type="range"
-                      min={4.0}
-                      max={9.0}
-                      step={0.25}
+                      min={2.5}
+                      max={7.0}
+                      step={0.1}
                       value={interestRate}
                       onChange={(e) => setInterestRate(Number(e.target.value))}
-                      className="w-full accent-blue-600"
+                      className="w-full accent-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">상환 기간 (Loan Term)</label>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setLoanTerm(30)}
-                        className={`flex-1 py-1.5 rounded-md font-bold transition-colors cursor-pointer ${
-                          loanTerm === 30 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'
-                        }`}
-                      >
-                        30년 고정
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setLoanTerm(15)}
-                        className={`flex-1 py-1.5 rounded-md font-bold transition-colors cursor-pointer ${
-                          loanTerm === 15 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'
-                        }`}
-                      >
-                        15년 고정
-                      </button>
-                    </div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">
+                      상환 기간: {loanYears}년
+                    </label>
+                    <select
+                      value={loanYears}
+                      onChange={(e) => setLoanYears(Number(e.target.value))}
+                      className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-medium"
+                    >
+                      <option value={10}>10년 상환</option>
+                      <option value={20}>20년 상환</option>
+                      <option value={30}>30년 상환</option>
+                      <option value={40}>40년 상환</option>
+                    </select>
                   </div>
                 </div>
 
-                {/* Monthly cost breakdown */}
-                <div className="bg-slate-900 text-white p-4 rounded-xl">
-                  <div className="flex items-baseline justify-between mb-3 border-b border-slate-800 pb-2">
-                    <span className="text-xs text-slate-300 font-semibold">총 월 예상 주거 비용</span>
-                    <span className="text-2xl font-black text-blue-400">
-                      ${mortgage.monthlyTotal.toLocaleString()}
-                      <span className="text-xs font-normal text-slate-400"> /월</span>
+                <div className="bg-slate-900 text-white p-4 rounded-xl flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-amber-400 font-semibold block">예상 월 원리금 납입액</span>
+                    <span className="text-xl font-black text-white">
+                      월 약 {formatManwonToKorean(mortgageInfo.monthlyPayment)}
                     </span>
                   </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <div>
-                      <span className="text-slate-400 block text-[11px]">원금 & 이자</span>
-                      <span className="font-bold text-white">${mortgage.monthlyPrincipalInterest.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[11px]">재산세 (월환산)</span>
-                      <span className="font-bold text-white">${mortgage.monthlyPropertyTax.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[11px]">주택보험 (추정)</span>
-                      <span className="font-bold text-white">${mortgage.monthlyInsurance.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[11px]">HOA 관리비</span>
-                      <span className="font-bold text-white">${mortgage.monthlyHoa.toLocaleString()}</span>
-                    </div>
+                  <div className="text-right text-xs text-slate-400">
+                    <p>총 이자: {formatManwonToKorean(mortgageInfo.totalInterest)}</p>
+                    <p>총 상환액: {formatManwonToKorean(mortgageInfo.totalPayment)}</p>
                   </div>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Right Column: Tour Booking Form & Agent Profile */}
-            <div className="space-y-6">
-              {/* Agent Card */}
-              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={property.agent.avatar}
-                    alt={property.agent.name}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-blue-500"
-                  />
-                  <div>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 uppercase">
-                      담당 중개사
-                    </span>
-                    <h4 className="font-extrabold text-slate-900 text-base">{property.agent.name}</h4>
-                    <p className="text-xs text-slate-500">{property.agent.title}</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs">
-                  <a
-                    href={`tel:${property.agent.phone.replace(/[^0-9]/g, '')}`}
-                    className="w-full py-2 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>전화 직통: {property.agent.phone}</span>
-                  </a>
-                  <div className="w-full py-2 px-3 rounded-lg bg-amber-50 text-amber-900 font-bold flex items-center justify-center gap-2">
-                    <MessageSquareText className="w-3.5 h-3.5 text-amber-600" />
-                    <span>카톡 상담: {property.agent.kakaoId}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Schedule a Tour & Inquiry Form */}
-              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                <h4 className="font-extrabold text-slate-900 text-sm mb-1">
-                  현장 투어 신청 및 매물 문의
-                </h4>
-                <p className="text-xs text-slate-500 mb-4">
-                  원하시는 날짜를 선택하시면 담당 에이전트가 1시간 내로 확인 연락을 드립니다.
+          {/* TAB 3: Tour Booking Form */}
+          {activeTab === 'tour' && (
+            <div className="max-w-xl mx-auto space-y-6 py-2 animate-in fade-in duration-200">
+              <div className="text-center space-y-1">
+                <h3 className="text-xl font-bold text-slate-900">VIP 전속 프라이빗 방문투어 예약</h3>
+                <p className="text-xs text-slate-500">
+                  입주민의 사생활 보호를 위해 모든 투어는 100% 사전 예약제로 운영됩니다.
                 </p>
-
-                {isSubmitted ? (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
-                    <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto mb-2">
-                      <Check className="w-6 h-6" />
-                    </div>
-                    <h5 className="font-bold text-emerald-900 text-sm">투어 신청이 완료되었습니다!</h5>
-                    <p className="text-xs text-emerald-700 mt-1">
-                      {userName} 고객님께 {userPhone} 번호로 담당 에이전트가 신속히 안내해 드리겠습니다.
-                    </p>
-                    <button
-                      onClick={() => setIsSubmitted(false)}
-                      className="mt-3 text-xs font-bold text-emerald-800 underline cursor-pointer"
-                    >
-                      다시 문의하기
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleTourSubmit} className="space-y-3 text-xs">
-                    {/* Tour Type Selector */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setTourType('in_person')}
-                        className={`py-2 rounded-lg font-bold border transition-colors cursor-pointer ${
-                          tourType === 'in_person'
-                            ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                            : 'bg-white border-slate-300 text-slate-700'
-                        }`}
-                      >
-                        현장 방문 투어
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setTourType('video')}
-                        className={`py-2 rounded-lg font-bold border transition-colors cursor-pointer ${
-                          tourType === 'video'
-                            ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                            : 'bg-white border-slate-300 text-slate-700'
-                        }`}
-                      >
-                        실시간 영상 투어
-                      </button>
-                    </div>
-
-                    {/* Date and Time */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">희망 날짜</label>
-                        <input
-                          type="date"
-                          value={selectedDate}
-                          onChange={(e) => setSelectedDate(e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 font-medium"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">희망 시간</label>
-                        <select
-                          value={selectedTime}
-                          onChange={(e) => setSelectedTime(e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 font-medium"
-                        >
-                          <option>오전 10:00</option>
-                          <option>오전 11:30</option>
-                          <option>오후 1:00</option>
-                          <option>오후 2:00</option>
-                          <option>오후 3:30</option>
-                          <option>오후 5:00</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Name */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">성함 *</label>
-                      <input
-                        type="text"
-                        placeholder="예: 홍길동"
-                        required
-                        value={userName}
-                        onChange={(e) => setUserName(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800"
-                      />
-                    </div>
-
-                    {/* Phone */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">연락처 (미국/한국 전화번호) *</label>
-                      <input
-                        type="tel"
-                        placeholder="예: 201-123-4567 또는 010-XXXX-XXXX"
-                        required
-                        value={userPhone}
-                        onChange={(e) => setUserPhone(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800"
-                      />
-                    </div>
-
-                    {/* Kakao & Email */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">카카오톡 ID (선택)</label>
-                        <input
-                          type="text"
-                          placeholder="카톡 ID"
-                          value={userKakao}
-                          onChange={(e) => setUserKakao(e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">이메일 (선택)</label>
-                        <input
-                          type="email"
-                          placeholder="email@domain.com"
-                          value={userEmail}
-                          onChange={(e) => setUserEmail(e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Additional Note */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">추가 문의 사항</label>
-                      <textarea
-                        rows={2}
-                        placeholder="궁금하신 점이나 선호 조건을 자유롭게 적어주세요."
-                        value={userNote}
-                        onChange={(e) => setUserNote(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer mt-2"
-                    >
-                      <Send className="w-4 h-4" />
-                      <span>무료 투어 및 상담 예약하기</span>
-                    </button>
-                  </form>
-                )}
               </div>
+
+              {tourSubmitted ? (
+                <div className="bg-emerald-50 border border-emerald-200 p-8 rounded-2xl text-center space-y-3">
+                  <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+                  <h4 className="text-lg font-bold text-emerald-950">투어 예약이 접수되었습니다</h4>
+                  <p className="text-xs text-emerald-800 leading-relaxed">
+                    담당 공인중개사가 1시간 이내에 기재해주신 연락처로 일정 확인 및 사전 보안 체크인을 위한 안내 연락을 드립니다.
+                  </p>
+                  <button
+                    onClick={() => setTourSubmitted(false)}
+                    className="mt-3 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold"
+                  >
+                    추가 신청하기
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleTourSubmit} className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">고객명 (성함)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="성함을 입력해주세요"
+                      value={tourName}
+                      onChange={(e) => setTourName(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">연락처</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="010-0000-0000"
+                      value={tourPhone}
+                      onChange={(e) => setTourPhone(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">희망 방문일</label>
+                      <input
+                        type="date"
+                        value={tourDate}
+                        onChange={(e) => setTourDate(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">희망 시간대</label>
+                      <select
+                        value={tourTime}
+                        onChange={(e) => setTourTime(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
+                      >
+                        <option value="오전 10:30">오전 10:30</option>
+                        <option value="오후 2:00">오후 2:00</option>
+                        <option value="오후 4:30">오후 4:30</option>
+                        <option value="오후 6:00">오후 6:00 (야경투어)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm shadow-md transition active:scale-95"
+                  >
+                    1:1 방문 투어 예약 완료
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
+
+          {/* Assigned Agent Profile Card */}
+          <div className="bg-slate-950 text-white p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <img
+                src={property.agent.avatar}
+                alt={property.agent.name}
+                className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-400"
+              />
+              <div>
+                <span className="text-[11px] text-amber-400 font-bold uppercase tracking-wider">
+                  담당 전속 공인중개사
+                </span>
+                <h4 className="text-lg font-bold text-white mt-0.5">{property.agent.name}</h4>
+                <p className="text-xs text-slate-400">{property.agent.title} · 경력 {property.agent.experienceYears}년</p>
+                <p className="text-[11px] text-slate-500 mt-1">등록번호: {property.agent.licenseNumber}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <a
+                href={`tel:${property.agent.mobile}`}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold transition"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>전화 상담</span>
+              </a>
+              <button
+                onClick={() => {
+                  alert(`카카오톡 플러스친구 [${property.agent.kakaoId}] 연결 준비 중입니다. 직통 번호 ${property.agent.mobile}로 연락주시면 즉시 연결됩니다.`);
+                }}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-xs font-bold transition"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>카카오톡 1:1</span>
+              </button>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Fixed Bottom Action Bar */}
+        <div className="sm:hidden sticky bottom-0 bg-slate-950 border-t border-slate-800 p-3 flex items-center gap-2 z-40">
+          <a
+            href={`tel:${property.agent.mobile}`}
+            className="flex-1 py-3 bg-slate-800 text-slate-200 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1"
+          >
+            <Phone className="w-3.5 h-3.5 text-amber-400" />
+            <span>전화상담</span>
+          </a>
+          <button
+            onClick={() => setActiveTab('tour')}
+            className="flex-1 py-3 bg-amber-500 text-slate-950 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1"
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>투어신청</span>
+          </button>
         </div>
       </div>
     </div>

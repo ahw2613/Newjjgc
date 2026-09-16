@@ -1,352 +1,374 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { CurrencyType, FilterState, Property, UnitType } from './types';
-import { PROPERTIES_DATA } from './data/propertiesData';
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Property, 
+  FilterState, 
+  UnitType, 
+  CurrencyType, 
+  ConsultationInquiry 
+} from './types';
+import { INITIAL_PROPERTIES, INITIAL_INQUIRIES } from './data/propertiesData';
 import { Navbar } from './components/Navbar';
 import { HeroSearch } from './components/HeroSearch';
 import { PropertyList } from './components/PropertyList';
+import { LocationsSection } from './components/LocationsSection';
+import { ServicesSection } from './components/ServicesSection';
+import { AboutSection } from './components/AboutSection';
+import { ContactSection } from './components/ContactSection';
+import { Footer } from './components/Footer';
 import { PropertyDetailModal } from './components/PropertyDetailModal';
-import { TownsGuideSection } from './components/TownsGuideSection';
+import { FavoritesModal } from './components/FavoritesModal';
 import { MortgageCalculatorModal } from './components/MortgageCalculatorModal';
 import { SellPropertyModal } from './components/SellPropertyModal';
-import { MarketInsightsSection } from './components/MarketInsightsSection';
-import { ContactBanner } from './components/ContactBanner';
-import { Footer } from './components/Footer';
+import { AdminCmsModal } from './components/AdminCmsModal';
 
-const INITIAL_FILTERS: FilterState = {
+export const initialFilters: FilterState = {
   searchQuery: '',
+  district: 'all',
   listingType: 'all',
-  town: 'all',
   propertyType: 'all',
   minPrice: 0,
-  maxPrice: 5000000,
-  beds: 0,
+  maxPrice: 0,
+  minPyeong: 0,
+  maxPyeong: 0,
+  rooms: 0,
   baths: 0,
-  minSchoolRating: 0,
-  openHouseOnly: false,
-  newConstructionOnly: false,
-  sortBy: 'newest'
+  subwayWithin10Min: false,
+  vipOnly: false,
+  sortBy: 'newest',
 };
 
 export default function App() {
-  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
-  const [currency, setCurrency] = useState<CurrencyType>('USD');
-  const [unit, setUnit] = useState<UnitType>('sqft');
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-
-  // Favorites with localStorage persistence
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('njstreet_favs');
-      return saved ? JSON.parse(saved) : ['nj-prop-01', 'nj-prop-03'];
-    } catch {
-      return ['nj-prop-01', 'nj-prop-03'];
+  // 메인 데이터 상태
+  const [properties, setProperties] = useState<Property[]>(() => {
+    const saved = localStorage.getItem('the_address_properties');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_PROPERTIES;
+      }
     }
+    return INITIAL_PROPERTIES;
   });
 
-  // Modal controls
-  const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
-  const [isMortgageModalOpen, setIsMortgageModalOpen] = useState(false);
-  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('njstreet_favs', JSON.stringify(favorites));
-    } catch (e) {
-      console.warn('Failed to save favorites to localStorage', e);
+  const [inquiries, setInquiries] = useState<ConsultationInquiry[]>(() => {
+    const saved = localStorage.getItem('the_address_inquiries');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_INQUIRIES;
+      }
     }
+    return INITIAL_INQUIRIES;
+  });
+
+  // 필터 및 뷰 상태
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [unit, setUnit] = useState<UnitType>('pyeong');
+  const [currency, setCurrency] = useState<CurrencyType>('KRW');
+
+  // 관심 매물 (즐겨찾기)
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    const saved = localStorage.getItem('the_address_favorites');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return ['prop-hannam-hill', 'prop-acro-forest'];
+      }
+    }
+    return ['prop-hannam-hill', 'prop-acro-forest'];
+  });
+
+  // 모달 상태
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
+  // 로컬 스토리지 동기화
+  useEffect(() => {
+    localStorage.setItem('the_address_favorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  useEffect(() => {
+    localStorage.setItem('the_address_properties', JSON.stringify(properties));
+  }, [properties]);
+
+  useEffect(() => {
+    localStorage.setItem('the_address_inquiries', JSON.stringify(inquiries));
+  }, [inquiries]);
+
+  // 관심 매물 토글
   const handleToggleFavorite = (id: string) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    setFavorites(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
 
-  const handleFilterChange = (newFilters: Partial<FilterState>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-  };
-
+  // 필터 리셋
   const handleResetFilters = () => {
-    setFilters(INITIAL_FILTERS);
+    setFilters(initialFilters);
   };
 
-  const handleScrollToSection = (sectionId: string) => {
-    const el = document.getElementById(sectionId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+  // 신규 문의 / 투어 신청 추가
+  const handleSubmitInquiry = (newInquiryData: Omit<ConsultationInquiry, 'id' | 'createdAt' | 'status'>) => {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    const item: ConsultationInquiry = {
+      ...newInquiryData,
+      id: `inq-${Date.now()}`,
+      createdAt: dateStr,
+      status: 'pending'
+    };
+
+    setInquiries(prev => [item, ...prev]);
+  };
+
+  // 관리자 기능
+  const handleAddProperty = (newProp: Property) => {
+    setProperties(prev => [newProp, ...prev]);
+  };
+
+  const handleDeleteProperty = (id: string) => {
+    setProperties(prev => prev.filter(p => p.id !== id));
+    if (selectedProperty?.id === id) {
+      setSelectedProperty(null);
     }
   };
 
-  // Quick tag click handler
-  const handleQuickTag = (tag: {
-    town?: string;
-    propertyType?: any;
-    openHouse?: boolean;
-    schoolMin?: number;
-  }) => {
-    const updated: Partial<FilterState> = {};
-    if (tag.town) updated.town = tag.town;
-    if (tag.propertyType) updated.propertyType = tag.propertyType;
-    if (tag.openHouse !== undefined) updated.openHouseOnly = tag.openHouse;
-    if (tag.schoolMin) updated.minSchoolRating = tag.schoolMin;
-
-    setFilters((prev) => ({ ...prev, ...updated }));
-    handleScrollToSection('listings-section');
+  const handleTogglePropertyFlag = (id: string, flag: 'isHot' | 'isFeatured' | 'isVipExclusive') => {
+    setProperties(prev => prev.map(p => {
+      if (p.id === id) {
+        return { ...p, [flag]: !p[flag] };
+      }
+      return p;
+    }));
   };
 
-  // Town guide click handler
-  const handleSelectTownFromGuide = (townNameKo: string) => {
-    // Map town Korean name to dropdown value
-    const match = PROPERTIES_DATA.find((p) => p.town.includes(townNameKo));
-    if (match) {
-      setFilters((prev) => ({ ...prev, town: match.town }));
-    } else {
-      setFilters((prev) => ({ ...prev, town: 'all', searchQuery: townNameKo }));
-    }
-    handleScrollToSection('listings-section');
+  const handleUpdateInquiryStatus = (id: string, status: 'pending' | 'in_progress' | 'completed') => {
+    setInquiries(prev => prev.map(inq => {
+      if (inq.id === id) {
+        return { ...inq, status };
+      }
+      return inq;
+    }));
   };
 
-  // Filtered & Sorted properties
+  // 매물 필터링 및 정렬 연산
   const filteredProperties = useMemo(() => {
-    return PROPERTIES_DATA.filter((p) => {
-      // Listing type (all, sale, rent, commercial)
-      if (filters.listingType !== 'all' && p.listingType !== filters.listingType) {
-        return false;
-      }
-
-      // Town
-      if (filters.town !== 'all' && !p.town.includes(filters.town) && !filters.town.includes(p.town)) {
-        return false;
-      }
-
-      // Property type
-      if (filters.propertyType !== 'all' && p.propertyType !== filters.propertyType) {
-        return false;
-      }
-
-      // Price
-      if (p.price > filters.maxPrice) {
-        return false;
-      }
-
-      // Beds
-      if (filters.beds > 0 && p.beds < filters.beds) {
-        return false;
-      }
-
-      // Min school rating
-      if (filters.minSchoolRating > 0) {
-        const hasGoodSchool = p.schools.some((s) => s.rating >= filters.minSchoolRating);
-        if (!hasGoodSchool) return false;
-      }
-
-      // Open house only
-      if (filters.openHouseOnly && !p.openHouse) {
-        return false;
-      }
-
-      // New construction only
-      if (filters.newConstructionOnly && !p.isNew && p.yearBuilt < 2024) {
-        return false;
-      }
-
-      // Keyword query
-      if (filters.searchQuery.trim() !== '') {
+    return properties.filter(prop => {
+      // 1. 텍스트 검색
+      if (filters.searchQuery.trim()) {
         const query = filters.searchQuery.toLowerCase().trim();
-        const matchesQuery =
-          p.titleKo.toLowerCase().includes(query) ||
-          p.titleEn.toLowerCase().includes(query) ||
-          p.address.toLowerCase().includes(query) ||
-          p.town.toLowerCase().includes(query) ||
-          p.descriptionKo.toLowerCase().includes(query) ||
-          p.features.some((f) => f.toLowerCase().includes(query)) ||
-          p.schools.some((s) => s.name.toLowerCase().includes(query));
+        const matchTitle = prop.titleKo.toLowerCase().includes(query);
+        const matchSubTitle = prop.subTitle?.toLowerCase().includes(query);
+        const matchDistrict = prop.district.toLowerCase().includes(query);
+        const matchAddress = prop.roadAddress.toLowerCase().includes(query) || prop.addressShort.toLowerCase().includes(query);
+        const matchFeatures = prop.features.some(f => f.toLowerCase().includes(query));
+        const matchStation = prop.subway.station.toLowerCase().includes(query);
 
-        if (!matchesQuery) return false;
+        if (!matchTitle && !matchSubTitle && !matchDistrict && !matchAddress && !matchFeatures && !matchStation) {
+          return false;
+        }
+      }
+
+      // 2. 권역 필터
+      if (filters.district !== 'all' && prop.district !== filters.district) {
+        return false;
+      }
+
+      // 3. 거래 형태
+      if (filters.listingType !== 'all' && prop.listingType !== filters.listingType) {
+        return false;
+      }
+
+      // 4. 매물 유형
+      if (filters.propertyType !== 'all' && prop.propertyType !== filters.propertyType) {
+        return false;
+      }
+
+      // 5. 가격 범위 (만원 단위)
+      if (filters.minPrice > 0 && prop.price < filters.minPrice) {
+        return false;
+      }
+      if (filters.maxPrice > 0 && prop.price > filters.maxPrice) {
+        return false;
+      }
+
+      // 6. 최소 전용면적 (평)
+      if (filters.minPyeong > 0 && prop.exclusivePyeong < filters.minPyeong) {
+        return false;
+      }
+
+      // 7. 방 개수
+      if (filters.rooms > 0 && prop.rooms < filters.rooms) {
+        return false;
+      }
+
+      // 8. 역세권 10분내
+      if (filters.subwayWithin10Min && prop.subway.walkMinutes > 10) {
+        return false;
+      }
+
+      // 9. VIP 전속만
+      if (filters.vipOnly && !prop.isVipExclusive) {
+        return false;
       }
 
       return true;
     }).sort((a, b) => {
-      if (filters.sortBy === 'price_asc') return a.price - b.price;
-      if (filters.sortBy === 'price_desc') return b.price - a.price;
-      if (filters.sortBy === 'sqft_desc') return b.sqft - a.sqft;
-      if (filters.sortBy === 'school_desc') {
-        const maxA = Math.max(...a.schools.map((s) => s.rating));
-        const maxB = Math.max(...b.schools.map((s) => s.rating));
-        return maxB - maxA;
+      if (filters.sortBy === 'price_desc') {
+        return b.price - a.price;
+      }
+      if (filters.sortBy === 'price_asc') {
+        return a.price - b.price;
+      }
+      if (filters.sortBy === 'pyeong_desc') {
+        return b.exclusivePyeong - a.exclusivePyeong;
+      }
+      if (filters.sortBy === 'floor_desc') {
+        return b.floor - a.floor;
       }
       // 'newest' default
-      return b.yearBuilt - a.yearBuilt;
+      return b.builtYear - a.builtYear;
     });
-  }, [filters]);
+  }, [properties, filters]);
 
-  const favoriteObjects = useMemo(() => {
-    return PROPERTIES_DATA.filter((p) => favorites.includes(p.id));
-  }, [favorites]);
+  // 권역 가이드에서 특정 지역 선택 시 해당 권역으로 필터 걸고 매물 영역으로 스크롤
+  const handleSelectDistrictFromGuide = (districtName: string) => {
+    setFilters(prev => ({
+      ...prev,
+      district: districtName
+    }));
+    const targetElement = document.getElementById('properties-section');
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      {/* Top Navigation */}
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
+      {/* 1. Global Navigation Bar */}
       <Navbar
-        currency={currency}
-        onToggleCurrency={() => setCurrency((prev) => (prev === 'USD' ? 'KRW' : 'USD'))}
-        unit={unit}
-        onToggleUnit={() => setUnit((prev) => (prev === 'sqft' ? 'pyeong' : 'sqft'))}
         favoritesCount={favorites.length}
-        onOpenFavorites={() => setIsFavoritesModalOpen(true)}
-        onOpenMortgageModal={() => setIsMortgageModalOpen(true)}
+        onOpenFavorites={() => setIsFavoritesOpen(true)}
+        unit={unit}
+        setUnit={setUnit}
+        currency={currency}
+        setCurrency={setCurrency}
+        onOpenCalculator={() => setIsCalculatorOpen(true)}
         onOpenSellModal={() => setIsSellModalOpen(true)}
-        onSelectListingType={(type) => setFilters((prev) => ({ ...prev, listingType: type }))}
-        onScrollToSection={handleScrollToSection}
+        onOpenAdminModal={() => setIsAdminOpen(true)}
       />
 
-      {/* Main Hero Search Section */}
-      <main className="flex-1">
-        <HeroSearch
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onSearchSubmit={() => handleScrollToSection('listings-section')}
-          matchingCount={filteredProperties.length}
-          onSelectQuickTag={handleQuickTag}
-        />
+      {/* 2. NJ Street Style Hero Search */}
+      <HeroSearch
+        filters={filters}
+        setFilters={setFilters}
+        totalCount={filteredProperties.length}
+        onOpenCalculator={() => setIsCalculatorOpen(true)}
+        onOpenSellModal={() => setIsSellModalOpen(true)}
+      />
 
-        {/* Real Estate Listings & Interactive Map Section */}
-        <PropertyList
-          properties={filteredProperties}
-          allPropertiesCount={PROPERTIES_DATA.length}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onResetFilters={handleResetFilters}
-          currency={currency}
-          unit={unit}
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
-          onSelectProperty={(prop) => setSelectedProperty(prop)}
-        />
+      {/* 3. Core Property Listings with Interactive Split Map View & Filters */}
+      <PropertyList
+        properties={filteredProperties}
+        filters={filters}
+        setFilters={setFilters}
+        selectedProperty={selectedProperty}
+        onSelectProperty={(prop) => setSelectedProperty(prop)}
+        favorites={favorites}
+        onToggleFavorite={handleToggleFavorite}
+        unit={unit}
+        currency={currency}
+        onResetFilters={handleResetFilters}
+      />
 
-        {/* Town & School District Guide */}
-        <TownsGuideSection onSelectTown={handleSelectTownFromGuide} />
+      {/* 4. Luxury District & School/Market Intelligence Guide */}
+      <LocationsSection
+        onSelectDistrictFilter={handleSelectDistrictFromGuide}
+      />
 
-        {/* Real Estate Columns & Guides */}
-        <MarketInsightsSection />
+      {/* 5. 4 Core Prestige Advisory Services */}
+      <ServicesSection
+        onOpenSellModal={() => setIsSellModalOpen(true)}
+        onOpenVipConsultModal={() => {
+          const contactElement = document.getElementById('contact-section');
+          if (contactElement) {
+            contactElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+      />
 
-        {/* Consultation & Booking Banner */}
-        <ContactBanner />
-      </main>
+      {/* 6. Brand Heritage, Certified Broker Team, 20-Billion KRW Guarantee */}
+      <AboutSection />
+
+      {/* 7. Private VIP 1:1 Consultation Booking & FAQ */}
+      <ContactSection
+        onSubmitInquiry={handleSubmitInquiry}
+      />
+
+      {/* 8. Full Legal Disclosure Luxury Footer */}
+      <Footer
+        onOpenCalculator={() => setIsCalculatorOpen(true)}
+        onOpenSellModal={() => setIsSellModalOpen(true)}
+        onOpenAdminModal={() => setIsAdminOpen(true)}
+      />
+
+      {/* --- MODALS --- */}
 
       {/* Property Detail Modal */}
       {selectedProperty && (
         <PropertyDetailModal
           property={selectedProperty}
           onClose={() => setSelectedProperty(null)}
-          currency={currency}
-          unit={unit}
           isFavorite={favorites.includes(selectedProperty.id)}
           onToggleFavorite={handleToggleFavorite}
+          unit={unit}
+          currency={currency}
+          onSubmitInquiry={handleSubmitInquiry}
         />
       )}
 
-      {/* Mortgage Calculator Modal */}
-      <MortgageCalculatorModal
-        isOpen={isMortgageModalOpen}
-        onClose={() => setIsMortgageModalOpen(false)}
+      {/* Favorites Modal */}
+      <FavoritesModal
+        isOpen={isFavoritesOpen}
+        onClose={() => setIsFavoritesOpen(false)}
+        favorites={favorites}
+        properties={properties}
+        onToggleFavorite={handleToggleFavorite}
+        onSelectProperty={(prop) => setSelectedProperty(prop)}
+        unit={unit}
+        currency={currency}
       />
 
-      {/* Sell Property Request Modal */}
+      {/* Acquisition Tax & Mortgage Calculator Modal */}
+      <MortgageCalculatorModal
+        isOpen={isCalculatorOpen}
+        onClose={() => setIsCalculatorOpen(false)}
+      />
+
+      {/* Sell / Consign Property Modal */}
       <SellPropertyModal
         isOpen={isSellModalOpen}
         onClose={() => setIsSellModalOpen(false)}
+        onSubmitInquiry={handleSubmitInquiry}
       />
 
-      {/* Favorites Modal */}
-      {isFavoritesModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-xs flex justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl my-auto border border-slate-200 relative">
-            <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-              <h3 className="font-extrabold text-base text-white">
-                내가 찜한 관심 매물 ({favoriteObjects.length}개)
-              </h3>
-              <button
-                onClick={() => setIsFavoritesModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-6 max-h-[75vh] overflow-y-auto">
-              {favoriteObjects.length === 0 ? (
-                <div className="py-12 text-center text-slate-500">
-                  <p className="font-bold text-slate-700">아직 저장된 관심 매물이 없습니다.</p>
-                  <p className="text-xs text-slate-400 mt-1">
-                    매물 카드 상단의 하트(♥) 아이콘을 눌러 관심 있는 집을 담아보세요.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {favoriteObjects.map((prop) => (
-                    <div
-                      key={prop.id}
-                      className="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-blue-400 transition-all gap-3 bg-slate-50/50"
-                    >
-                      <img
-                        src={prop.images[0]}
-                        alt={prop.titleKo}
-                        className="w-20 h-16 object-cover rounded-lg shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[10px] font-bold text-blue-600 block">
-                          {prop.town} • MLS# {prop.mlsNumber}
-                        </span>
-                        <h4 className="font-bold text-xs text-slate-900 truncate">
-                          {prop.titleKo}
-                        </h4>
-                        <div className="flex items-center gap-2 text-xs font-bold text-slate-900 mt-1">
-                          <span className="text-blue-700">${prop.price.toLocaleString()}</span>
-                          <span className="text-[11px] font-normal text-slate-500">
-                            {prop.beds}베드 • {prop.baths}배스 • {prop.sqft} sqft
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => {
-                            setIsFavoritesModalOpen(false);
-                            setSelectedProperty(prop);
-                          }}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          상세보기
-                        </button>
-                        <button
-                          onClick={() => handleToggleFavorite(prop.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-end">
-              <button
-                onClick={() => setIsFavoritesModalOpen(false)}
-                className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <Footer
-        onScrollToSection={handleScrollToSection}
-        onOpenMortgageModal={() => setIsMortgageModalOpen(true)}
-        onOpenSellModal={() => setIsSellModalOpen(true)}
-        onSelectListingType={(type) => setFilters((prev) => ({ ...prev, listingType: type }))}
+      {/* Admin CMS Management Modal */}
+      <AdminCmsModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        properties={properties}
+        onAddProperty={handleAddProperty}
+        onDeleteProperty={handleDeleteProperty}
+        onTogglePropertyFlag={handleTogglePropertyFlag}
+        inquiries={inquiries}
+        onUpdateInquiryStatus={handleUpdateInquiryStatus}
       />
     </div>
   );

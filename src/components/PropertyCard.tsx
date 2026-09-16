@@ -1,197 +1,217 @@
-import React from 'react';
-import { 
-  Heart, 
-  Bed, 
-  Bath, 
-  Maximize, 
-  MapPin, 
-  GraduationCap, 
-  Bus, 
-  Calendar, 
-  Eye, 
-  Sparkles, 
-  Clock 
-} from 'lucide-react';
-import { CurrencyType, Property, UnitType } from '../types';
-import { formatPrice, formatArea } from '../utils/formatters';
+import React, { useState } from 'react';
+import { Heart, ChevronLeft, ChevronRight, MapPin, Maximize2, Car, Compass } from 'lucide-react';
+import { Property, UnitType, CurrencyType } from '../types';
+import { formatPropertyPrice, formatManwonToUSD, formatArea } from '../utils/formatters';
 
 interface PropertyCardProps {
   property: Property;
-  currency: CurrencyType;
-  unit: UnitType;
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
   onSelectProperty: (property: Property) => void;
+  unit: UnitType;
+  currency: CurrencyType;
+  compact?: boolean;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
-  currency,
-  unit,
   isFavorite,
   onToggleFavorite,
-  onSelectProperty
+  onSelectProperty,
+  unit,
+  currency,
+  compact = false
 }) => {
-  const getListingTypeBadge = (type: string) => {
-    switch (type) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % property.images.length);
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length);
+  };
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleFavorite(property.id);
+  };
+
+  const getListingBadgeColor = () => {
+    switch (property.listingType) {
       case 'sale':
-        return { label: '매매 (For Sale)', bg: 'bg-blue-600 text-white' };
+        return 'bg-amber-500 text-slate-950 font-bold';
+      case 'jeonse':
+        return 'bg-emerald-600 text-white font-bold';
       case 'rent':
-        return { label: '렌트 (For Rent)', bg: 'bg-emerald-600 text-white' };
+        return 'bg-blue-600 text-white font-bold';
       case 'commercial':
-        return { label: '상업용 (Commercial)', bg: 'bg-amber-600 text-white' };
+        return 'bg-purple-600 text-white font-bold';
       default:
-        return { label: type, bg: 'bg-slate-700 text-white' };
+        return 'bg-slate-800 text-slate-200';
     }
   };
 
-  const badge = getListingTypeBadge(property.listingType);
-  const bestSchool = property.schools.reduce((prev, curr) => (curr.rating > prev.rating ? curr : prev), property.schools[0]);
+  const getListingLabel = () => {
+    switch (property.listingType) {
+      case 'sale': return '매매';
+      case 'jeonse': return '전세';
+      case 'rent': return '월세';
+      case 'commercial': return '빌딩·상업용';
+    }
+  };
 
   return (
-    <div className="group bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
-      {/* Image Container */}
-      <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100 cursor-pointer" onClick={() => onSelectProperty(property)}>
+    <div
+      id={`property-card-${property.id}`}
+      onClick={() => onSelectProperty(property)}
+      className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl hover:border-amber-400/50 transition-all duration-300 cursor-pointer flex flex-col relative"
+    >
+      {/* Image Carousel Container */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
         <img
-          src={property.images[0]}
+          src={property.images[currentImageIndex] || property.images[0]}
           alt={property.titleKo}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/20 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+
+        {/* Carousel Arrow Controls (shows on hover) */}
+        {property.images.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              aria-label="이전 사진"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition backdrop-blur-sm"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={nextImage}
+              aria-label="다음 사진"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition backdrop-blur-sm"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1">
+              {property.images.slice(0, 5).map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all ${
+                    currentImageIndex === i ? 'w-4 bg-amber-400' : 'w-1.5 bg-white/60'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 items-center z-10">
-          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md shadow-xs ${badge.bg}`}>
-            {badge.label}
+        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+          <span className={`text-[11px] px-2.5 py-1 rounded-md shadow-sm uppercase tracking-wider ${getListingBadgeColor()}`}>
+            {getListingLabel()}
           </span>
-          {property.isNew && (
-            <span className="text-[11px] font-bold px-2 py-1 rounded-md bg-indigo-600 text-white flex items-center gap-1 shadow-xs">
-              <Sparkles className="w-3 h-3" /> 신축 NEW
+          {property.isVipExclusive && (
+            <span className="text-[11px] px-2 py-1 rounded-md bg-slate-950/90 text-amber-300 font-semibold border border-amber-400/40 backdrop-blur-md shadow-sm">
+              VIP 전속
             </span>
           )}
           {property.isHot && (
-            <span className="text-[11px] font-bold px-2 py-1 rounded-md bg-rose-600 text-white shadow-xs">
-              HOT 인기
+            <span className="text-[11px] px-2 py-1 rounded-md bg-rose-600 text-white font-semibold shadow-sm">
+              인기 매물
             </span>
           )}
         </div>
 
-        {/* Favorite Heart Toggle */}
+        {/* Top Right Favorite Button */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleFavorite(property.id);
-          }}
-          className="absolute top-3 right-3 p-2 rounded-full bg-white/85 hover:bg-white text-slate-700 hover:text-rose-600 transition-all shadow-md z-10 cursor-pointer"
-          title={isFavorite ? '관심 매물에서 제거' : '관심 매물에 저장'}
+          id={`btn-favorite-${property.id}`}
+          onClick={handleFavoriteClick}
+          aria-label="관심 매물 저장"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm transition active:scale-90"
         >
-          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+          <Heart
+            className={`w-4 h-4 transition ${
+              isFavorite ? 'fill-rose-500 text-rose-500' : 'text-white hover:text-rose-400'
+            }`}
+          />
         </button>
 
-        {/* Open House Notice Badge */}
-        {property.openHouse && (
-          <div className="absolute bottom-3 left-3 bg-amber-500/90 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            <span>오픈하우스: {property.openHouse.date}</span>
-          </div>
-        )}
-
-        {/* Image count */}
-        <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-sm">
-          사진 {property.images.length}장
+        {/* Sub-location tag on bottom of image */}
+        <div className="absolute bottom-3 left-3 text-white text-xs font-medium flex items-center gap-1 drop-shadow">
+          <MapPin className="w-3.5 h-3.5 text-amber-400" />
+          <span>{property.region}</span>
         </div>
       </div>
 
       {/* Content Body */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
-        <div>
-          {/* Town and Address */}
-          <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-            <span className="font-semibold text-blue-600 flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              {property.town}
-            </span>
-            <span className="text-slate-400">MLS# {property.mlsNumber}</span>
-          </div>
-
-          {/* Title */}
-          <h3 
-            onClick={() => onSelectProperty(property)}
-            className="font-bold text-slate-900 text-base leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors cursor-pointer"
-            title={property.titleKo}
-          >
+      <div className="p-4 sm:p-5 flex flex-col flex-1">
+        {/* Title */}
+        <div className="mb-2">
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-amber-700 transition">
             {property.titleKo}
           </h3>
-          <p className="text-xs text-slate-500 line-clamp-1 mt-0.5 font-normal">
-            {property.address}, {property.town}
-          </p>
-
-          {/* Price display with dual currency */}
-          <div className="mt-3 pb-2 border-b border-slate-100">
-            <div className="flex items-baseline justify-between">
-              <span className="text-xl font-extrabold text-slate-900 tracking-tight">
-                {formatPrice(property.price, currency, property.listingType)}
-              </span>
-            </div>
-            {/* Secondary currency preview */}
-            <p className="text-xs text-slate-500 mt-0.5">
-              {currency === 'USD' 
-                ? `(원화 환산 ${formatPrice(property.price, 'KRW', property.listingType)})` 
-                : `(USD: $${property.price.toLocaleString()})`}
+          {property.subTitle && (
+            <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+              {property.subTitle}
             </p>
-          </div>
+          )}
+        </div>
 
-          {/* Key Specs Grid */}
-          <div className="grid grid-cols-3 gap-2 py-3 border-b border-slate-100 text-slate-700 text-xs font-semibold">
-            <div className="flex items-center gap-1.5" title="침실 수">
-              <Bed className="w-4 h-4 text-slate-400" />
-              <span>{property.beds > 0 ? `${property.beds} 침실` : '오피스/스튜디오'}</span>
-            </div>
-            <div className="flex items-center gap-1.5" title="욕실 수">
-              <Bath className="w-4 h-4 text-slate-400" />
-              <span>{property.baths} 욕실</span>
-            </div>
-            <div className="flex items-center gap-1.5" title="면적">
-              <Maximize className="w-4 h-4 text-slate-400" />
-              <span className="truncate">{formatArea(property.sqft, unit)}</span>
-            </div>
+        {/* Price Section */}
+        <div className="my-2">
+          <div className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight flex items-baseline gap-2">
+            <span>
+              {formatPropertyPrice(property.listingType, property.price, property.deposit, property.monthlyRent)}
+            </span>
           </div>
+          {currency === 'USD' && (
+            <p className="text-xs text-slate-500 font-medium">
+              약 {formatManwonToUSD(property.price)} (환율 1,380원 기준)
+            </p>
+          )}
+        </div>
 
-          {/* School and Commute Highlights */}
-          <div className="mt-3 flex flex-col gap-1.5 text-xs text-slate-600">
-            {bestSchool && (
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1 text-emerald-800">
-                  <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
-                  학군 평가:
-                </span>
-                <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-sm">
-                  {bestSchool.name.split(' ')[0]} {bestSchool.rating}/10점
-                </span>
-              </div>
-            )}
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1 text-slate-500">
-                <Bus className="w-3.5 h-3.5 text-blue-500" />
-                NYC 통근:
-              </span>
-              <span className="font-medium text-slate-700">
-                GWB 차 {property.commute.gwbDriveMinutes}분 / 버스 {property.commute.busToPortAuthorityMinutes}분
-              </span>
-            </div>
+        {/* Specs Grid */}
+        <div className="grid grid-cols-4 gap-2 py-3 border-y border-slate-100 my-2 text-center text-xs text-slate-600">
+          <div>
+            <span className="block text-[10px] text-slate-400">전용면적</span>
+            <span className="font-bold text-slate-800">
+              {formatArea(property.exclusivePyeong, property.exclusiveAreaM2, unit)}
+            </span>
+          </div>
+          <div>
+            <span className="block text-[10px] text-slate-400">구조</span>
+            <span className="font-bold text-slate-800">룸{property.rooms}/욕{property.baths}</span>
+          </div>
+          <div>
+            <span className="block text-[10px] text-slate-400">해당층</span>
+            <span className="font-bold text-slate-800">{property.floor}층/{property.totalFloors}층</span>
+          </div>
+          <div>
+            <span className="block text-[10px] text-slate-400">주차</span>
+            <span className="font-bold text-slate-800">세대당 {property.parking}대</span>
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
-          <button
-            onClick={() => onSelectProperty(property)}
-            className="flex-1 py-2.5 px-3 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>상세정보 & 투어 예약</span>
-          </button>
+        {/* Features / Subway tag */}
+        <div className="mt-auto pt-2 flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center gap-1.5 overflow-hidden">
+            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px] font-medium whitespace-nowrap">
+              {property.subway.station.split('(')[0]} 도보 {property.subway.walkMinutes}분
+            </span>
+            {property.features[0] && (
+              <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 text-[11px] font-medium whitespace-nowrap truncate">
+                {property.features[0]}
+              </span>
+            )}
+          </div>
+          <span className="text-[11px] text-amber-700 font-semibold group-hover:underline whitespace-nowrap ml-2">
+            상세보기 &rarr;
+          </span>
         </div>
       </div>
     </div>

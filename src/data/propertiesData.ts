@@ -1,529 +1,714 @@
-import { Property } from '../types';
+import { Property, AgentInfo } from '../types';
 
-export const DUMMY_AGENT = {
-  name: '김사이먼 (Simon Kim)',
-  title: 'NJ 최고 실적 공인중개사 / Broker Associate',
-  phone: '201-555-0199',
-  email: 'contact@njstreet-demo.com',
-  kakaoId: 'njstreet_realestate',
-  avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80'
+export const PRINCIPAL_BROKERS: Record<string, AgentInfo> = {
+  luxury_team: {
+    name: '강태양 대표 공인중개사',
+    title: '디 어드레스 대표 / 하이엔드 전담 파트너',
+    phone: '02-588-7740',
+    mobile: '010-3891-9981',
+    email: 'ty.kang@theaddress.co.kr',
+    kakaoId: 'theaddress_vip',
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
+    licenseNumber: '제11680-2018-00214호',
+    experienceYears: 16
+  },
+  residential_lead: {
+    name: '정유진 수석 이사',
+    title: '용산·성수 프라이빗 매칭 디렉터',
+    phone: '02-588-7741',
+    mobile: '010-8204-7119',
+    email: 'yj.jung@theaddress.co.kr',
+    kakaoId: 'yj_luxury_realty',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    licenseNumber: '제11650-2019-00188호',
+    experienceYears: 12
+  },
+  commercial_lead: {
+    name: '박민우 본부장',
+    title: '상업용 부동산 & 빌딩 매입매각 총괄',
+    phone: '02-588-7742',
+    mobile: '010-9931-4502',
+    email: 'mw.park@theaddress.co.kr',
+    kakaoId: 'theaddress_building',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
+    licenseNumber: '제11680-2020-00302호',
+    experienceYears: 14
+  }
 };
 
 export const PROPERTIES_DATA: Property[] = [
   {
-    id: 'nj-prop-01',
-    titleKo: '포트리 허드슨강 맨해튼 파노라마 뷰 럭셔리 하이라이즈 콘도',
-    titleEn: 'Fort Lee Luxury High-Rise Condo with Panoramic Manhattan River Views',
-    address: '100 Central Rd, Unit 18B',
-    town: '포트리 (Fort Lee)',
-    county: 'Bergen County',
-    zipCode: '07024',
+    id: 'addr-01',
+    titleKo: '나인원 한남 펜트하우스 듀플렉스',
+    subTitle: '최고급 프라이빗 테라스 & 남산·한강 파노라마 파크뷰',
+    region: '서울시 용산구 한남동',
+    district: '용산/한남',
+    addressShort: '한남대로 91',
+    roadAddress: '서울특별시 용산구 한남대로 91 (한남동)',
     listingType: 'sale',
-    propertyType: 'condo_townhouse',
-    price: 895000,
-    beds: 2,
-    baths: 2,
-    sqft: 1450,
-    yearBuilt: 2018,
-    propertyTaxAnnual: 9800,
-    hoaFeeMonthly: 780,
-    mlsNumber: 'NJMLS-2401892',
+    propertyType: 'luxury_villa',
+    price: 1350000, // 135억
+    exclusivePyeong: 74,
+    supplyPyeong: 101,
+    exclusiveAreaM2: 244.72,
+    supplyAreaM2: 334.2,
+    rooms: 5,
+    baths: 4,
+    parking: 4,
+    floor: 9,
+    totalFloors: 9,
+    direction: '남향',
+    builtYear: 2019,
+    moveInDate: '즉시 입주 (협의 가능)',
+    maintenanceCost: 180,
+    maintenanceCostDesc: '공용관리비, 보안, 피트니스 및 수영장 이용 포함',
     images: [
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80'
     ],
-    descriptionKo: '조지워싱턴브릿지(GWB) 차량 3분 거리의 포트리 중심 럭셔리 하이라이즈 콘도입니다. 18층 고층에서 허드슨 강과 맨해튼 스카이라인을 감상할 수 있는 남동향 유닛입니다. 최신 서브제로 및 울프 가전, 대리석 카운터탑, 24시간 도어맨, 인피니티 온수풀, 피트니스 센터 완비. 맨해튼 직통 셔틀 및 버스 정류장이 바로 앞에 위치합니다.',
-    descriptionEn: 'Luxury high-rise condo in prime Fort Lee with spectacular southeast Hudson River and NYC skyline views. Features high-end Sub-Zero and Wolf appliances, marble countertops, 24/7 concierge, fitness center, outdoor pool, and covered deeded parking.',
-    features: ['맨해튼 리버뷰', '24시간 도어맨', '실내 피트니스 & 풀', '서브제로/울프 가전', '실내 지정 주차 1대', '발코니', '초고속 엘리베이터'],
-    schools: [
-      { name: 'School No. 1 Elementary', rating: 9, distance: '0.4 mi', type: 'Elementary' },
-      { name: 'Lewis F. Cole Middle School', rating: 8, distance: '0.9 mi', type: 'Middle' },
-      { name: 'Fort Lee High School', rating: 9, distance: '1.1 mi', type: 'High' }
+    descriptionKo: '대한민국 하이엔드 주거의 정점에 서 있는 나인원 한남 최상층 펜트하우스 세대입니다. 2개 층 복층 구조와 단독 루프탑 가든 테라스를 갖추고 있어 완벽한 도심 속 독립적인 휴식을 선사합니다. 24시간 보안 시스템과 호텔급 컨시어지, 입주민 전용 인도어 골프레인지, 온수풀, 게스트하우스, 와인 라운지가 구비되어 있습니다. 유명 인사 및 글로벌 자산가 선호도 1위 단지입니다.',
+    features: [
+      '단독 루프탑 가든 테라스',
+      '남산 & 한강 더블 조망권',
+      '지하 단독 지정주차 4대',
+      '마스터존 독립 드레스룸',
+      '밀레·불탑 최고급 가전 풀빌트인',
+      '24시간 게이티드 철통보안',
+      '호텔식 조식 & 클럽하우스'
     ],
-    commute: {
-      gwbDriveMinutes: 3,
-      busToPortAuthorityMinutes: 18,
-      busLines: ['NJ Transit 158', 'NJ Transit 156', 'GWB Jitney Shuttle'],
-      ferryOrTrain: '에지워터 페리 7분 거리'
+    schools: [
+      { name: '서울한남초등학교', type: '초등', distance: '도보 4분', ratingNote: '용산 핵심 명문 공립초' },
+      { name: '서울용산국제학교 (YISS)', type: '국제학교', distance: '차량 6분', ratingNote: '외교관 및 글로벌 자녀 최고 선호' },
+      { name: '오산중·고등학교', type: '고등', distance: '차량 5분', ratingNote: '전통 명문 사립' }
+    ],
+    subway: {
+      station: '한강진역 (6호선) / 한남역 (경의중앙선)',
+      walkMinutes: 7,
+      lines: ['6호선', '경의중앙선']
     },
-    openHouse: {
-      date: '2026. 9. 20 (토)',
-      time: '오후 1:00 ~ 4:00'
-    },
+    isVipExclusive: true,
     isHot: true,
     isFeatured: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.8509, lng: -73.9701 }
+    agent: PRINCIPAL_BROKERS.luxury_team,
+    coordinates: { lat: 37.5348, lng: 127.0062 }
   },
   {
-    id: 'nj-prop-02',
-    titleKo: '팰리세이즈 파크 브로드애비뉴 도보권 신축 럭셔리 듀플렉스',
-    titleEn: 'Palisades Park Brand New Luxury Modern Duplex near Broad Ave',
-    address: '245 4th Street',
-    town: '팰리세이즈 파크 (Palisades Park)',
-    county: 'Bergen County',
-    zipCode: '07650',
+    id: 'addr-02',
+    titleKo: '아크로 서울포레스트 하이라이즈 한강뷰',
+    subTitle: '서울숲 영구 조망과 파노라마 아트프레임 창호',
+    region: '서울시 성동구 성수동1가',
+    district: '성동/성수',
+    addressShort: '왕십리로 83-21',
+    roadAddress: '서울특별시 성동구 왕십리로 83-21 (성수동1가)',
     listingType: 'sale',
-    propertyType: 'single_family',
-    price: 1380000,
-    beds: 4,
-    baths: 4.5,
-    sqft: 3200,
-    lotSizeSqft: 4500,
-    yearBuilt: 2025,
-    propertyTaxAnnual: 14200,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2402105',
-    images: [
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '2025년 완공된 팰팍 중심가의 최신형 모던 듀플렉스입니다. 1층부터 3층까지 높은 천장과 오픈 플로어 플랜, 디자이너 이탈리안 주방, 마스터 스위트룸에 대형 워크인 클로젯과 스파 욕조가 갖추어져 있습니다. 지하는 독립 출입구가 있는 풀 피니시 베이스먼트(게스트룸 및 엔터테인먼트룸). 브로드 애비뉴 한인 상가 및 버스 정류장 도보 3분!',
-    descriptionEn: 'Stunning 2025 newly constructed luxury duplex in heart of Palisades Park. 4 levels of living space, custom European designer kitchen, quartz waterfall island, fully finished ground level with private entrance, 2-car garage and private fenced backyard.',
-    features: ['2025 신축', '완전 마감 지하(독립출입)', '차고 2대 + 드라이브웨이', '스마트홈 오토메이션', '쿼츠 폭포 아일랜드', '도보 3분 한인상권', '프라이빗 백야드'],
-    schools: [
-      { name: 'Charles Lindbergh Elementary', rating: 7, distance: '0.3 mi', type: 'Elementary' },
-      { name: 'Palisades Park Jr/Sr High', rating: 7, distance: '0.6 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 7,
-      busToPortAuthorityMinutes: 25,
-      busLines: ['NJ Transit 166 Express', 'NJ Transit 165'],
-      ferryOrTrain: 'GWB 익스프레스 버스'
-    },
-    openHouse: {
-      date: '2026. 9. 21 (일)',
-      time: '오후 2:00 ~ 5:00'
-    },
-    isHot: true,
-    isFeatured: true,
-    isNew: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.8482, lng: -73.9968 }
-  },
-  {
-    id: 'nj-prop-03',
-    titleKo: '테너플라이 명문 학군 울창한 프라이빗 수영장 장착 최고급 단독주택',
-    titleEn: 'Tenafly Executive Colonial Home on Quiet Cul-de-sac with In-ground Pool',
-    address: '38 Woodland Park Dr',
-    town: '테너플라이 (Tenafly)',
-    county: 'Bergen County',
-    zipCode: '07670',
-    listingType: 'sale',
-    propertyType: 'single_family',
-    price: 1980000,
-    beds: 5,
-    baths: 5,
-    sqft: 4600,
-    lotSizeSqft: 18500,
-    yearBuilt: 2016,
-    propertyTaxAnnual: 23500,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2401773',
-    images: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '뉴저지 1위 공립학교인 테너플라이 하이스쿨 도보권의 프라이빗 컬드색 단독주택입니다. 약 0.42에이커(약 520평)의 넓은 대지에 온수 인그라운드 수영장과 야외 키친 파티오가 조성되어 있습니다. 5개 침실 전용 욕실, 2층 세탁실, 홈 시어터와 와인 셀러가 완비된 럭셔리 주택입니다.',
-    descriptionEn: 'Prestigious Tenafly East Hill classic colonial residence situated on half an acre manicured property with heated gunite swimming pool and outdoor kitchen. Within walking distance to Blue Ribbon schools and NYC commuter bus.',
-    features: ['테너플라이 10점 만점 학군', '온수 수영장', '홈 시어터', '와인 셀러', '3대 실내 차고', '0.42에이커 프라이빗 랏', '야외 바베큐 파티오'],
-    schools: [
-      { name: 'Smith Elementary School', rating: 10, distance: '0.5 mi', type: 'Elementary' },
-      { name: 'Tenafly Middle School', rating: 10, distance: '0.8 mi', type: 'Middle' },
-      { name: 'Tenafly High School', rating: 10, distance: '1.0 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 12,
-      busToPortAuthorityMinutes: 35,
-      busLines: ['NJ Transit 166', 'Rockland Coaches 9T'],
-      ferryOrTrain: 'GWB 차량 12분'
-    },
-    isFeatured: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.9254, lng: -73.9615 }
-  },
-  {
-    id: 'nj-prop-04',
-    titleKo: '클로스터 노던밸리 명문 학군 2026 신축 모던 콜로니얼',
-    titleEn: 'Closter Brand New Custom Built Luxury Home with High Ceilings',
-    address: '88 Hickory Lane',
-    town: '클로스터 (Closter)',
-    county: 'Bergen County',
-    zipCode: '07624',
-    listingType: 'sale',
-    propertyType: 'single_family',
-    price: 2280000,
-    beds: 6,
-    baths: 6.5,
-    sqft: 5200,
-    lotSizeSqft: 15000,
-    yearBuilt: 2026,
-    propertyTaxAnnual: 24000,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2403310',
-    images: [
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600566752734-2a0cd6666754?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '클로스터 플라자 도보 7분, 노던밸리 리저널 데마레스트(NVRHS Demarest) 학군의 2026년 신축 맞춤형 대저택입니다. 10피트 높은 천장과 전면 통유리창, 테슬라 충전기가 설치된 2대 차고, 최상급 마감재로 시공되었습니다.',
-    descriptionEn: 'Architectural masterpiece brand new construction in desirable Closter. Top-tier Northern Valley High School district. Boasting 6 ensuite bedrooms, dual primary suites, chef kitchen with oversized island and radiant heated floors.',
-    features: ['2026 완공 신축', '노던밸리 명문 학군', '바닥 난방 (Radiant Heat)', '클로스터 플라자 도보권', '테슬라 EV 충전기', '스마트홈 시스템'],
-    schools: [
-      { name: 'Hillside Elementary', rating: 9, distance: '0.4 mi', type: 'Elementary' },
-      { name: 'Tenakill Middle School', rating: 9, distance: '0.7 mi', type: 'Middle' },
-      { name: 'Northern Valley Regional HS at Demarest', rating: 10, distance: '1.2 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 18,
-      busToPortAuthorityMinutes: 42,
-      busLines: ['Rockland Coaches Red & Tan'],
-      ferryOrTrain: 'GWB 18분 직통'
-    },
-    isHot: true,
-    isNew: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.9732, lng: -73.9626 }
-  },
-  {
-    id: 'nj-prop-05',
-    titleKo: '에지워터 허드슨 강변 워터프론트 럭셔리 타운하우스 (렌트)',
-    titleEn: 'Edgewater Waterfront Luxury Townhome with NYC Skyline Direct View (For Rent)',
-    address: '42 Independence Way',
-    town: '에지워터 (Edgewater)',
-    county: 'Bergen County',
-    zipCode: '07020',
-    listingType: 'rent',
-    propertyType: 'condo_townhouse',
-    price: 4950,
-    rentPeriod: 'month',
-    beds: 3,
+    propertyType: 'apartment',
+    price: 980000, // 98억
+    exclusivePyeong: 60,
+    supplyPyeong: 77,
+    exclusiveAreaM2: 198.21,
+    supplyAreaM2: 254.6,
+    rooms: 4,
     baths: 3,
-    sqft: 2100,
-    yearBuilt: 2015,
-    propertyTaxAnnual: 0,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2400982',
+    parking: 3,
+    floor: 38,
+    totalFloors: 49,
+    direction: '남서향',
+    builtYear: 2020,
+    moveInDate: '2026년 하반기 즉시 입주 협의',
+    maintenanceCost: 130,
+    maintenanceCostDesc: '관리규약에 따른 실비 부과, 피트니스 및 발렛 포함',
     images: [
-      'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '에지워터 콜로니 인근의 워터프론트 타운하우스 렌트 매물입니다. 거실과 마스터 침실에서 맨해튼 미드타운 스카이라인이 한눈에 펼쳐집니다. NY Waterway 페리 선착장까지 도보 5분으로 미드타운 39번가까지 15분 만에 편안하게 출퇴근할 수 있습니다. 1대 실내 차고 및 드라이브웨이 포함.',
-    descriptionEn: 'Direct NYC river view townhome rental in prime Edgewater. Walk to NY Waterway Ferry for 15-minute commute to Midtown Manhattan. Pristine hardwood floors, gas fireplace, private balcony overlooking Hudson River.',
-    features: ['월 렌트 매물', '맨해튼 파노라마 뷰', 'NY Waterway 페리 도보 5분', '전용 발코니', '실내 차고 1대', '반려동물 협의 가능', '미츠와/홀푸드 인근'],
-    schools: [
-      { name: 'Eleanor Van Gelder Elementary', rating: 9, distance: '0.6 mi', type: 'Elementary' },
-      { name: 'Leonia High School (Send/Receive)', rating: 8, distance: '2.5 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 8,
-      busToPortAuthorityMinutes: 20,
-      busLines: ['NJ Transit 158 (Front Door)', 'NY Waterway Ferry'],
-      ferryOrTrain: '페리 선착장 도보 5분 (맨해튼 15분)'
-    },
-    isHot: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.8270, lng: -73.9754 }
-  },
-  {
-    id: 'nj-prop-06',
-    titleKo: '포트리 중심가 올리노베이션 2베드 2배스 콘도 (초역세권 렌트)',
-    titleEn: 'Fort Lee Fully Renovated 2-Bed 2-Bath Condo near Town Center (Rental)',
-    address: '2050 Center Ave, Apt 6C',
-    town: '포트리 (Fort Lee)',
-    county: 'Bergen County',
-    zipCode: '07024',
-    listingType: 'rent',
-    propertyType: 'condo_townhouse',
-    price: 3300,
-    rentPeriod: 'month',
-    beds: 2,
-    baths: 2,
-    sqft: 1180,
-    yearBuilt: 2012,
-    propertyTaxAnnual: 0,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2401124',
-    images: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '포트리 메인 스트리트와 H마트, 카페가 밀집한 중심부에 위치한 2베드 2배스 렌트 유닛입니다. 전체 원목 바닥 교체, 스테인리스 가전 및 인유닛 세탁기/건조기 설치 완료. GWB 버스터미널 행 짓니(Jitney) 및 뉴욕행 버스 정류장이 바로 코앞입니다.',
-    descriptionEn: 'Sun-drenched, completely remodeled 2BR/2BA apartment in prime Fort Lee center. In-unit washer/dryer, updated kitchen with quartz countertops, hardwood floors throughout. Gas and water included.',
-    features: ['올 리노베이션 완료', '유닛 내 세탁기/건조기', '난방/온수/가스 렌트비 포함', 'H마트 도보 4분', 'NYC 버스 정류장 앞'],
-    schools: [
-      { name: 'School No. 3 Elementary', rating: 8, distance: '0.3 mi', type: 'Elementary' },
-      { name: 'Fort Lee High School', rating: 9, distance: '0.8 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 2,
-      busToPortAuthorityMinutes: 17,
-      busLines: ['NJ Transit 158', 'NJ Transit 156'],
-      ferryOrTrain: 'GWB 셔틀 2분'
-    },
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.8525, lng: -73.9720 }
-  },
-  {
-    id: 'nj-prop-07',
-    titleKo: '릿지우드 기차역 도보권 전통 명문 학군 클래식 콜로니얼 단독주택',
-    titleEn: 'Ridgewood Prestigious Colonial Walking Distance to Train Station & Village',
-    address: '142 Franklin Ave',
-    town: '릿지우드 (Ridgewood)',
-    county: 'Bergen County',
-    zipCode: '07450',
-    listingType: 'sale',
-    propertyType: 'single_family',
-    price: 1680000,
-    beds: 5,
-    baths: 4.5,
-    sqft: 3850,
-    lotSizeSqft: 12500,
-    yearBuilt: 2010,
-    propertyTaxAnnual: 21500,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2402941',
-    images: [
-      'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '버겐카운티 최고 명문 학군 중 하나인 릿지우드의 완벽한 패밀리 홈입니다. 활기 넘치는 다운타운 빌리지 상권과 통근 기차역(Ridgewood Station)을 도보 8분으로 이용할 수 있습니다. 웅장한 화강암 벽난로, 쉐프 주방, 마스터 스위트와 넓은 뒷마당 잔디밭.',
-    descriptionEn: 'Timeless colonial charm meets contemporary luxury in downtown Ridgewood. 8-minute walk to NYC commuter train and premier village dining. Top-rated Ridgewood High School district.',
-    features: ['릿지우드 역세권 도보 8분', '명문 고교 학군 10점', '벽난로 2개', '쉐프 주방', '잔디 정원 & 데크', '피니시 베이스먼트'],
-    schools: [
-      { name: 'Travell Elementary School', rating: 10, distance: '0.5 mi', type: 'Elementary' },
-      { name: 'Benjamin Franklin Middle', rating: 9, distance: '0.7 mi', type: 'Middle' },
-      { name: 'Ridgewood High School', rating: 10, distance: '0.9 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 22,
-      busToPortAuthorityMinutes: 45,
-      busLines: ['NJ Transit Main/Bergen County Line Train'],
-      ferryOrTrain: '릿지우드 기차역 도보 8분'
-    },
-    openHouse: {
-      date: '2026. 9. 27 (토)',
-      time: '오후 1:00 ~ 3:30'
-    },
-    isFeatured: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.9793, lng: -74.1165 }
-  },
-  {
-    id: 'nj-prop-08',
-    titleKo: '잉글우드 클리프 초호화 메가 단독주택 (초저 재산세율 & 프라이빗)',
-    titleEn: 'Englewood Cliffs Ultra-Luxury Custom Estate on 1 Acre with Lowest Taxes',
-    address: '75 Floyd St',
-    town: '잉글우드 클리프 (Englewood Cliffs)',
-    county: 'Bergen County',
-    zipCode: '07632',
-    listingType: 'sale',
-    propertyType: 'single_family',
-    price: 3250000,
-    beds: 6,
-    baths: 7.5,
-    sqft: 6800,
-    lotSizeSqft: 43560,
-    yearBuilt: 2021,
-    propertyTaxAnnual: 18500,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2404018',
-    images: [
-      'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '버겐카운티에서 가장 낮은 재산세율로 유명한 잉글우드 클리프의 1에이커(약 1,220평) 프라이빗 에스테이트입니다. GWB까지 차로 5분 거리이며, 실내 엘리베이터, 사우나, 테니스 코트 겸용 스포츠 코트, 온열 수영장, 4대 실내 차고가 갖춰진 최고급 저택입니다.',
-    descriptionEn: 'Spectacular gated modern estate on full flat acre in ultra-low tax Englewood Cliffs. Only minutes to Manhattan. Features private residential elevator, home wellness spa with sauna, 4-car garage, and resort-style backyard.',
-    features: ['1에이커 대형 부지', '버겐카운티 최저 수준 재산세', '실내 엘리베이터', '프라이빗 게이트', '사우나 & 스파', '차고 4대', 'GWB 차량 5분'],
-    schools: [
-      { name: 'North Cliff Elementary', rating: 9, distance: '0.7 mi', type: 'Elementary' },
-      { name: 'Upper School', rating: 9, distance: '0.9 mi', type: 'Middle' },
-      { name: 'Dwight Morrow High School', rating: 8, distance: '2.0 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 5,
-      busToPortAuthorityMinutes: 22,
-      busLines: ['Rockland Coaches', 'NJ Transit 156'],
-      ferryOrTrain: 'GWB 5분 직통'
-    },
-    isHot: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.8809, lng: -73.9535 }
-  },
-  {
-    id: 'nj-prop-09',
-    titleKo: '포트리 메인 스트리트 상가/오피스 건물 (임대수익률 7.2% 상업용 매물)',
-    titleEn: 'Fort Lee Main Street Prime Mixed-Use Commercial Retail Building (For Sale)',
-    address: '1628 Main Street',
-    town: '포트리 (Fort Lee)',
-    county: 'Bergen County',
-    zipCode: '07024',
-    listingType: 'commercial',
-    propertyType: 'commercial',
-    price: 1850000,
-    beds: 0,
-    baths: 4,
-    sqft: 4800,
-    lotSizeSqft: 5000,
-    yearBuilt: 2008,
-    propertyTaxAnnual: 19800,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2405001',
-    images: [
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '포트리 핵심 상권인 메인 스트리트 코너변에 위치한 주상복합 상업용 건물입니다. 1층 2개 소매점포(베이커리/헤어살롱 우량 임차인 장기계약 중), 2층 전문직 사무실 2개 유닛으로 구성되어 공실 위험이 매우 낮으며 캡레이트(Cap Rate) 7.2%를 기록하고 있는 알짜배기 투자 매물입니다.',
-    descriptionEn: 'Rare commercial mixed-use retail building in prime Fort Lee Main Street corridor. 100% occupied with reliable, long-term tenants. High foot-traffic location with designated customer parking in rear.',
-    features: ['상업용 투자 매물', '캡레이트 7.2%', '전 유닛 100% 임대 완료', '포트리 메인 상권 코너', '후면 전용 주차장 8대', '개별 냉난방 분리'],
-    schools: [
-      { name: 'Fort Lee Commercial District', rating: 8, distance: '0.1 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 2,
-      busToPortAuthorityMinutes: 16,
-      busLines: ['NJ Transit 158', 'NJ Transit 156'],
-      ferryOrTrain: 'GWB 2분'
-    },
-    isFeatured: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.8515, lng: -73.9715 }
-  },
-  {
-    id: 'nj-prop-10',
-    titleKo: '저지시티 익스체인지 플레이스 허드슨강변 럭셔리 콘도 (PATH 7분)',
-    titleEn: 'Jersey City Exchange Place Luxury Waterfront 1BR Condo (7 Min to WTC)',
-    address: '150 Greene St, Unit 12A',
-    town: '저지시티 (Jersey City)',
-    county: 'Hudson County',
-    zipCode: '07302',
-    listingType: 'sale',
-    propertyType: 'condo_townhouse',
-    price: 749000,
-    beds: 1,
-    baths: 1,
-    sqft: 860,
-    yearBuilt: 2019,
-    propertyTaxAnnual: 8200,
-    hoaFeeMonthly: 590,
-    mlsNumber: 'NJMLS-2401662',
-    images: [
-      'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80'
-    ],
-    descriptionKo: '맨해튼 월스트리트(WTC)까지 PATH 전철로 정확히 1정거장 7분! 저지시티 익스체인지 플레이스 워터프론트의 1베드 콘도입니다. 높은 층고와 전면 통창으로 맨해튼 남부 및 프리덤타워 뷰가 아름답게 펼쳐집니다. 루프탑 수영장, 라운지, 바베큐 테라스 완비.',
-    descriptionEn: 'Waterfront luxury 1BR condo at Exchange Place. Only 1 stop (7 mins) to World Trade Center via PATH. Jaw-dropping Downtown Manhattan views, rooftop pool, 24-hr concierge.',
-    features: ['월스트리트 PATH 7분', '프리덤타워 뷰', '루프탑 수영장 & 라운지', '24시간 컨시어지', '택스 감면(Tax Abatement) 유효'],
-    schools: [
-      { name: 'Cornelia F. Bradford Elementary', rating: 9, distance: '0.2 mi', type: 'Elementary' },
-      { name: 'McNair Academic High School', rating: 10, distance: '1.5 mi', type: 'High' }
-    ],
-    commute: {
-      gwbDriveMinutes: 20,
-      busToPortAuthorityMinutes: 15,
-      busLines: ['PATH Train (Exchange Place)', 'NY Waterway Ferry'],
-      ferryOrTrain: 'PATH 전철 7분 WTC 직통'
-    },
-    isHot: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.7178, lng: -74.0338 }
-  },
-  {
-    id: 'nj-prop-11',
-    titleKo: '팰리세이즈 파크 2-패밀리 다가구 주택 (임대수익형 투자 매물)',
-    titleEn: 'Palisades Park Turnkey 2-Family Home with Great Rental Income (Sale)',
-    address: '312 E Central Blvd',
-    town: '팰리세이즈 파크 (Palisades Park)',
-    county: 'Bergen County',
-    zipCode: '07650',
-    listingType: 'sale',
-    propertyType: 'multi_family',
-    price: 1490000,
-    beds: 6,
-    baths: 4,
-    sqft: 3600,
-    lotSizeSqft: 5000,
-    yearBuilt: 2014,
-    propertyTaxAnnual: 15200,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2402889',
-    images: [
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1200&q=80'
     ],
-    descriptionKo: '실거주와 임대 수익을 동시에 누릴 수 있는 팰팍의 합법 2-패밀리 주택입니다. 1층 유닛(3베드 2배스)과 2층 유닛(3베드 2배스)이 완전히 분리되어 있으며, 지하 및 차고 2대 공간이 별도로 마련되어 있습니다. 월 예상 임대 수입 $7,500으로 모기지 부담을 덜어줍니다.',
-    descriptionEn: 'Legal 2-Family income property in top Palisades Park location. Two identical 3-bedroom 2-bath units with separate utilities. Full basement with high ceilings and 2-car garage. Projected $7,500/month rental income.',
-    features: ['합법 2-패밀리 다가구', '월 예상 임대수입 $7,500', '완전 독립 유틸리티 분리', '차고 2대 + 드라이브웨이 4대', '브로드애비뉴 도보 5분'],
-    schools: [
-      { name: 'Charles Lindbergh Elementary', rating: 7, distance: '0.4 mi', type: 'Elementary' },
-      { name: 'Palisades Park High School', rating: 7, distance: '0.7 mi', type: 'High' }
+    descriptionKo: '성수동의 랜드마크 아크로 서울포레스트 로열층 세대입니다. 서울숲 35만 평의 녹지와 한강을 한눈에 담아내는 270도 파노라마 코너 창호 설계를 자랑합니다. T자형 평면 구조로 채광과 통풍이 극대화되어 있으며, 3.3m의 웅장한 층고와 서브제로 냉장고, 가게나우 오븐 등 전 세계 최고급 프리미엄 자재로 시공되었습니다. 갤러리아포레, 트리마제와 함께 성수동 하이엔드 벨트의 대표작입니다.',
+    features: [
+      '서울숲 & 한강 270도 파노라마 뷰',
+      '층고 3.3m 아트리움 개방감',
+      '클럽하우스 & 프라이빗 게스트룸',
+      '수인분당선 서울숲역 지하 직결',
+      '전 세대 지하 개별 창고 제공',
+      '서브제로/가게나우 명품 주방'
     ],
-    commute: {
-      gwbDriveMinutes: 8,
-      busToPortAuthorityMinutes: 26,
-      busLines: ['NJ Transit 166', 'NJ Transit 165'],
-      ferryOrTrain: '뉴욕 직통버스 도보 3분'
+    schools: [
+      { name: '경일초등학교', type: '초등', distance: '도보 6분', ratingNote: '안심 통학로' },
+      { name: '경일중·고등학교', type: '고등', distance: '도보 8분', ratingNote: '도보 통학 우수' }
+    ],
+    subway: {
+      station: '서울숲역 (수인분당선 단지 지하 직통) / 뚝섬역 (2호선)',
+      walkMinutes: 1,
+      lines: ['수인분당선', '2호선']
     },
+    isVipExclusive: false,
+    isHot: true,
     isFeatured: true,
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.8495, lng: -73.9935 }
+    agent: PRINCIPAL_BROKERS.residential_lead,
+    coordinates: { lat: 37.5441, lng: 127.0445 }
   },
   {
-    id: 'nj-prop-12',
-    titleKo: '크레스킬 명문 학군 턴키 단독주택 (남향, 프라이빗 백야드)',
-    titleEn: 'Cresskill Beautiful Turnkey Colonial in Top School District',
-    address: '54 Jefferson Ave',
-    town: '크레스킬 (Cresskill)',
-    county: 'Bergen County',
-    zipCode: '07626',
+    id: 'addr-03',
+    titleKo: 'PH129 더 펜트하우스 청담',
+    subTitle: '전 세대 복층형 한강 파노라마 뷰 하이퍼엔드 레지던스',
+    region: '서울시 강남구 청담동',
+    district: '강남/청담',
+    addressShort: '영동대로 740',
+    roadAddress: '서울특별시 강남구 영동대로 740 (청담동)',
     listingType: 'sale',
-    propertyType: 'single_family',
-    price: 1420000,
-    beds: 4,
-    baths: 3.5,
-    sqft: 3100,
-    lotSizeSqft: 10000,
-    yearBuilt: 2017,
-    propertyTaxAnnual: 17800,
-    hoaFeeMonthly: 0,
-    mlsNumber: 'NJMLS-2403190',
+    propertyType: 'luxury_villa',
+    price: 1650000, // 165억
+    exclusivePyeong: 82,
+    supplyPyeong: 120,
+    exclusiveAreaM2: 273.96,
+    supplyAreaM2: 396.6,
+    rooms: 5,
+    baths: 4,
+    parking: 5,
+    floor: 16,
+    totalFloors: 20,
+    direction: '남동향',
+    builtYear: 2020,
+    moveInDate: '즉시 입주 (사전 예약 투어)',
+    maintenanceCost: 220,
+    maintenanceCostDesc: '최고급 보안 경비, 세대별 전용 엘리베이터 홀 관리비 포함',
     images: [
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80'
     ],
-    descriptionKo: '크레스킬의 조용하고 안전한 주택가에 위치한 턴키 상태의 단독주택입니다. 따뜻한 햇살이 가득한 남향이며, 1층에 오픈 콘셉트 주방과 패밀리룸이 연결되어 있습니다. 잔디 마당과 바베큐 데크가 잘 조성되어 있어 아이들이 마음껏 뛰어놀 수 있습니다.',
-    descriptionEn: 'Immaculate colonial home on a premier quiet tree-lined street in Cresskill. Open-concept layout, bright southern exposure, gourmet kitchen with marble island, and spacious fenced backyard.',
-    features: ['크레스킬 우수 학군', '남향 채광 우수', '완전 울타리 백야드', '차고 2대', '마스터 스위트 스파 욕조'],
-    schools: [
-      { name: 'Edward H. Bryan School', rating: 9, distance: '0.4 mi', type: 'Elementary' },
-      { name: 'Cresskill Middle School', rating: 9, distance: '0.8 mi', type: 'Middle' },
-      { name: 'Cresskill High School', rating: 10, distance: '0.8 mi', type: 'High' }
+    descriptionKo: '대한민국 공시가격 1위를 다투는 최상위 0.01%를 위한 하이퍼엔드 주거 PH129(더 펜트하우스 청담)입니다. 전 세대가 보이드(Void) 복층 구조로 설계되어 6.7m에 달하는 거실 층고를 통해 영동대교와 한강 수평선을 시원하게 조망할 수 있습니다. 각 세대 전용 프라이빗 엘리베이터 드롭오프 존 및 세대당 5대 이상의 여유로운 광폭 주차 공간을 제공합니다.',
+    features: [
+      '거실 보이드 층고 6.7m 복층 설계',
+      '영구 한강 조망권 (영동대교 뷰)',
+      '세대 전용 단독 엘리베이터 승강장',
+      '지정 주차 5대 (슈퍼카 및 대형 SUV 여유)',
+      '최고급 피트니스 & 스크린 골프',
+      '철저한 보안 및 사생활 차단 설계'
     ],
-    commute: {
-      gwbDriveMinutes: 14,
-      busToPortAuthorityMinutes: 38,
-      busLines: ['Rockland Coaches Route 9'],
-      ferryOrTrain: 'GWB 14분'
+    schools: [
+      { name: '청담초등학교', type: '초등', distance: '도보 7분', ratingNote: '강남 명문 초등' },
+      { name: '청담중·고등학교', type: '고등', distance: '도보 9분', ratingNote: '우수 진학 명문' }
+    ],
+    subway: {
+      station: '청담역 (7호선) / 압구정로데오역 (수인분당선)',
+      walkMinutes: 8,
+      lines: ['7호선', '수인분당선']
     },
-    openHouse: {
-      date: '2026. 9. 20 (토)',
-      time: '오후 2:00 ~ 4:30'
+    isVipExclusive: true,
+    isHot: true,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.luxury_team,
+    coordinates: { lat: 37.5255, lng: 127.0543 }
+  },
+  {
+    id: 'addr-04',
+    titleKo: '한남더힐 테라스 하우스 전세',
+    subTitle: '배산임수 명당의 정원 품은 저층 테라스형 프라이빗 주거',
+    region: '서울시 용산구 한남동',
+    district: '용산/한남',
+    addressShort: '독서당로 111',
+    roadAddress: '서울특별시 용산구 독서당로 111 (한남동)',
+    listingType: 'jeonse',
+    propertyType: 'luxury_villa',
+    price: 450000, // 전세 45억
+    deposit: 450000,
+    exclusivePyeong: 70,
+    supplyPyeong: 91,
+    exclusiveAreaM2: 233.06,
+    supplyAreaM2: 300.8,
+    rooms: 4,
+    baths: 3,
+    parking: 3,
+    floor: 2,
+    totalFloors: 6,
+    direction: '남동향',
+    builtYear: 2011,
+    moveInDate: '2026년 10월 입주 가능',
+    maintenanceCost: 150,
+    maintenanceCostDesc: '커뮤니티 및 단지 정원 조경 관리 포함',
+    images: [
+      'https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '도심 속 대저택 리조트 같은 정취를 자랑하는 한남더힐의 희소한 테라스 세대 전세 매물입니다. 거실과 마스터룸에서 바로 연결되는 단독 테라스 가든에서 계절의 변화를 감상할 수 있습니다. 단지 전체에 세계적인 예술가들의 조각품과 수령 수백 년의 수목이 어우러져 있으며, 쿠사마 야요이 등 미술관 수준의 갤러리 커뮤니티가 운영 중입니다.',
+    features: [
+      '단독 전용 가든 테라스 보유',
+      '배산임수 전통 부촌 명당',
+      '단지 내 수영장, 골프, 사우나, 스파',
+      '동간 거리 극대화로 프라이버시 보장',
+      '지하 창고 및 세대당 주차 3대'
+    ],
+    schools: [
+      { name: '한남초등학교', type: '초등', distance: '도보 5분', ratingNote: '안심 통학' },
+      { name: '독일국제학교', type: '국제학교', distance: '차량 4분', ratingNote: '주한 외국인 및 특례 학군' }
+    ],
+    subway: {
+      station: '옥수역 (3호선, 경의중앙선) / 한남역',
+      walkMinutes: 10,
+      lines: ['3호선', '경의중앙선']
     },
-    agent: DUMMY_AGENT,
-    coordinates: { lat: 40.9402, lng: -73.9602 }
+    isVipExclusive: false,
+    isHot: true,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.residential_lead,
+    coordinates: { lat: 37.5369, lng: 127.0118 }
+  },
+  {
+    id: 'addr-05',
+    titleKo: '래미안 원베일리 로열동 한강뷰 랜드마크',
+    subTitle: '반포 대장주 신축 한강변 파노라마 조망 전세',
+    region: '서울시 서초구 반포동',
+    district: '서초/반포',
+    addressShort: '반포대로 333',
+    roadAddress: '서울특별시 서초구 반포대로 333 (반포동)',
+    listingType: 'jeonse',
+    propertyType: 'apartment',
+    price: 230000, // 전세 23억
+    deposit: 230000,
+    exclusivePyeong: 35,
+    supplyPyeong: 46,
+    exclusiveAreaM2: 116.8,
+    supplyAreaM2: 152.0,
+    rooms: 4,
+    baths: 2,
+    parking: 2,
+    floor: 28,
+    totalFloors: 35,
+    direction: '북한강뷰',
+    builtYear: 2023,
+    moveInDate: '즉시 입주 협의',
+    maintenanceCost: 45,
+    maintenanceCostDesc: '일반관리비 및 커뮤니티 이용료 포함',
+    images: [
+      'https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '신반포 랜드마크 래미안 원베일리 최상급 한강 조망 로열층 전세 매물입니다. 거실에서 한강 물결과 남산타워가 정면으로 바라보이며, 신반포역(9호선)과 고속터미널역(3, 7, 9호선)을 도보로 이용 가능한 트리플 역세권입니다. 스카이라운지, 수영장, 사우나, 북카페 등 하이엔드 어메니티와 반포한강공원 전용 나들목이 연결되어 있습니다.',
+    features: [
+      '정면 한강 & 남산타워 파노라마 뷰',
+      '신반포역 도보 3분 초역세권',
+      '반포한강공원 직통 보행 나들목',
+      '스카이브릿지 라운지 & 인피니티풀',
+      '신세계백화점 강남점 슬세권'
+    ],
+    schools: [
+      { name: '잠원초등학교', type: '초등', distance: '도보 3분', ratingNote: '단지 초품아 안심 통학' },
+      { name: '세화여중·세화여고·세화고', type: '고등', distance: '도보 10분', ratingNote: '강남 서초 최고의 명문 자사고 학군' }
+    ],
+    subway: {
+      station: '신반포역 (9호선) / 고속터미널역 (3·7·9호선)',
+      walkMinutes: 3,
+      lines: ['9호선', '3호선', '7호선']
+    },
+    isVipExclusive: false,
+    isHot: true,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.residential_lead,
+    coordinates: { lat: 37.5052, lng: 127.0016 }
+  },
+  {
+    id: 'addr-06',
+    titleKo: '성수 트리마제 호텔식 컨시어지 럭셔리 월세',
+    subTitle: '호텔식 조식 서비스와 한강 조망 풀옵션 월세',
+    region: '서울시 성동구 성수동1가',
+    district: '성동/성수',
+    addressShort: '왕십리로 16',
+    roadAddress: '서울특별시 성동구 왕십리로 16 (성수동1가)',
+    listingType: 'rent',
+    propertyType: 'apartment',
+    price: 30000, // 보증금 3억 / 월 950만
+    deposit: 30000,
+    monthlyRent: 950,
+    exclusivePyeong: 41,
+    supplyPyeong: 56,
+    exclusiveAreaM2: 136.56,
+    supplyAreaM2: 185.1,
+    rooms: 3,
+    baths: 2,
+    parking: 2,
+    floor: 32,
+    totalFloors: 47,
+    direction: '남향',
+    builtYear: 2017,
+    moveInDate: '2026년 11월 초 입주 협의',
+    maintenanceCost: 65,
+    maintenanceCostDesc: '기본 관리비 (조식, 세탁 딜리버리, 발렛 이용료 별도정산)',
+    images: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '성수동의 시그니처 랜드마크 트리마제의 고층 한강 조망 세대입니다. 남향으로 막힘없는 영구 한강 조망을 만끽할 수 있으며, 조식 뷔페, 하우스키핑, 세탁 딜리버리, 발렛파킹 등 최고급 호텔식 서비스를 일상에서 누릴 수 있습니다. 대형 인도어 골프연습장과 사우나, 스파가 완비되어 연예인과 크리에이터들이 가장 선호하는 단지입니다.',
+    features: [
+      '호텔식 조식 서비스 & 발렛파킹',
+      '파노라마 남향 한강 조망권',
+      '대형 실내 골프연습장 & 사우나',
+      '강변북로, 올림픽대로 즉각 진입',
+      '풀옵션 시스템에어컨 & 빌트인'
+    ],
+    schools: [
+      { name: '경수초·경수중', type: '초등', distance: '도보 5분', ratingNote: '도보 통학' }
+    ],
+    subway: {
+      station: '서울숲역 (수인분당선)',
+      walkMinutes: 5,
+      lines: ['수인분당선']
+    },
+    isVipExclusive: false,
+    isHot: false,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.residential_lead,
+    coordinates: { lat: 37.5388, lng: 127.0422 }
+  },
+  {
+    id: 'addr-07',
+    titleKo: '압구정 현대 7차 재건축 핵심 로열동',
+    subTitle: '대한민국 재건축 대장 압구정 특별계획구역 알짜 지분',
+    region: '서울시 강남구 압구정동',
+    district: '강남/청담',
+    addressShort: '압구정로 201',
+    roadAddress: '서울특별시 강남구 압구정로 201 (압구정동)',
+    listingType: 'sale',
+    propertyType: 'apartment',
+    price: 820000, // 82억
+    exclusivePyeong: 59,
+    supplyPyeong: 65,
+    exclusiveAreaM2: 196.2,
+    supplyAreaM2: 214.8,
+    rooms: 5,
+    baths: 2,
+    parking: 2,
+    floor: 8,
+    totalFloors: 14,
+    direction: '남향',
+    builtYear: 1978,
+    moveInDate: '전세 안고 매매 or 실입주 협의',
+    maintenanceCost: 55,
+    maintenanceCostDesc: '중앙난방 및 일반관리비 포함',
+    images: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '대한민국 부의 상징이자 신속통합기획 70층 재건축이 본격화되고 있는 압구정 3구역 현대 7차 59평형 매물입니다. 압구정역 도보 5분 거리의 로열동으로 대지지분이 넓어 향후 신축 시 최고급 한강변 펜트하우스 배정이 유력합니다. 현대백화점 본점, 갤러리아백화점, 압구정 로데오가 바로 인접하여 최상의 인프라를 누릴 수 있습니다.',
+    features: [
+      '압구정 3구역 신속통합 재건축 추진',
+      '압구정역(3호선) 도보 5분 초역세권',
+      '넓은 대지지분 보유 (투자가치 극대화)',
+      '현대백화점 압구정본점 슬세권',
+      '남향 판상형 5베이 구조'
+    ],
+    schools: [
+      { name: '압구정초등학교', type: '초등', distance: '도보 3분', ratingNote: '단지 내 초등학교' },
+      { name: '압구정중·고등학교', type: '고등', distance: '도보 5분', ratingNote: '전통의 강남 최고 명문' }
+    ],
+    subway: {
+      station: '압구정역 (3호선)',
+      walkMinutes: 5,
+      lines: ['3호선']
+    },
+    isVipExclusive: true,
+    isHot: true,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.luxury_team,
+    coordinates: { lat: 37.5284, lng: 127.0305 }
+  },
+  {
+    id: 'addr-08',
+    titleKo: '롯데월드타워 시그니엘 레지던스 구름 위의 궁전',
+    subTitle: '지상 68층 스카이 뷰와 6성급 호텔 어메니티 라이프',
+    region: '서울시 송파구 신천동',
+    district: '송파/잠실',
+    addressShort: '올림픽로 300',
+    roadAddress: '서울특별시 송파구 올림픽로 300 (신천동)',
+    listingType: 'sale',
+    propertyType: 'officetel',
+    price: 880000, // 88억
+    exclusivePyeong: 62,
+    supplyPyeong: 88,
+    exclusiveAreaM2: 205.3,
+    supplyAreaM2: 290.9,
+    rooms: 3,
+    baths: 3,
+    parking: 3,
+    floor: 68,
+    totalFloors: 123,
+    direction: '남동향',
+    builtYear: 2017,
+    moveInDate: '즉시 입주 가능',
+    maintenanceCost: 250,
+    maintenanceCostDesc: '호텔식 방재, 피트니스, 조식 라운지, 발렛 기본 제공',
+    images: [
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '세계 5대 초고층 랜드마크 롯데월드타워 68층에 위치한 시그니엘 레지던스입니다. 서울 시내 전역과 석촌호수, 한강, 아차산까지 발아래로 내려다보이는 초현실적인 조망을 자랑합니다. 롯데호텔 시그니엘의 룸서비스, 하우스키핑, 발렛파킹, 42층 클럽 시그니엘(피트니스, 수영장, 와인셀러, 티하우스)을 평생 VIP 회원 자격으로 누릴 수 있습니다.',
+    features: [
+      '지상 68층 압도적 스카이라인 뷰',
+      '석촌호수 & 한강 더블 조망',
+      '6성급 시그니엘 호텔 버틀러 서비스',
+      '입주민 전용 42층 클럽 어메니티',
+      '외풍 및 지진 진도 9.0 견디는 내진설계',
+      '잠실역 지하 직결 (2, 8호선)'
+    ],
+    schools: [
+      { name: '잠동초등학교', type: '초등', distance: '도보 7분', ratingNote: '송파 우수 초등' },
+      { name: '잠실중·잠실고', type: '고등', distance: '도보 10분', ratingNote: '학업성취도 최상위' }
+    ],
+    subway: {
+      station: '잠실역 (2호선, 8호선 지하 직통 연결)',
+      walkMinutes: 1,
+      lines: ['2호선', '8호선']
+    },
+    isVipExclusive: true,
+    isHot: true,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.luxury_team,
+    coordinates: { lat: 37.5126, lng: 127.1026 }
+  },
+  {
+    id: 'addr-09',
+    titleKo: '광주 봉선동 한국아델리움 로얄스위트 테라스',
+    subTitle: '호남 최고 학군 1번지 봉선동 프라이빗 대형 펜트',
+    region: '광주광역시 남구 봉선동',
+    district: '광주/봉선',
+    addressShort: '봉선중앙로 45',
+    roadAddress: '광주광역시 남구 봉선중앙로 45 (봉선동)',
+    listingType: 'sale',
+    propertyType: 'apartment',
+    price: 185000, // 18억 5,000만원
+    exclusivePyeong: 55,
+    supplyPyeong: 68,
+    exclusiveAreaM2: 182.4,
+    supplyAreaM2: 224.7,
+    rooms: 4,
+    baths: 3,
+    parking: 3,
+    floor: 15,
+    totalFloors: 15,
+    direction: '남향',
+    builtYear: 2021,
+    moveInDate: '2026년 가을 협의 입주',
+    maintenanceCost: 38,
+    maintenanceCostDesc: '일반관리비 및 단지 보안 포함',
+    images: [
+      'https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '광주의 대치동으로 불리는 봉선동 명문 학원가 중심에 자리잡은 한국아델리움 최상층 루프탑 테라스 세대입니다. 남향의 우수한 채광과 제석산 영구 숲 조망권을 누릴 수 있습니다. 문성고, 대성여고, 동아여고 등 의치한 진학률 최상위 학군에 도보 통학이 가능하며, 대형 55평형으로 3대 거주가 가능한 넉넉한 공간 구성을 제공합니다.',
+    features: [
+      '봉선동 명문 학원가 도보 2분',
+      '제석산 영구 녹지 마운틴 뷰',
+      '최상층 단독 테라스 가든',
+      '세대당 광폭 주차 3대 보장',
+      '광주 지하철 2호선(예정) 호재'
+    ],
+    schools: [
+      { name: '조봉초등학교', type: '초등', distance: '도보 4분', ratingNote: '봉선동 최고 인기 초등' },
+      { name: '문성중·문성고등학교', type: '고등', distance: '도보 7분', ratingNote: '전국 의대 진학률 명문 사립' }
+    ],
+    subway: {
+      station: '광주 도시철도 2호선 봉선역(공사중, 도보 4분)',
+      walkMinutes: 4,
+      lines: ['광주2호선(예정)']
+    },
+    isVipExclusive: false,
+    isHot: true,
+    isFeatured: false,
+    agent: PRINCIPAL_BROKERS.residential_lead,
+    coordinates: { lat: 35.1278, lng: 126.9112 }
+  },
+  {
+    id: 'addr-10',
+    titleKo: '강남 테헤란로 역세권 신축 메디컬·사옥 빌딩',
+    subTitle: '지하 1층~지상 8층, 전층 근생 완비 우량 임차 사옥',
+    region: '서울시 강남구 역삼동',
+    district: '강남/청담',
+    addressShort: '테헤란로 152',
+    roadAddress: '서울특별시 강남구 테헤란로 152길 (역삼동)',
+    listingType: 'commercial',
+    propertyType: 'commercial',
+    price: 2900000, // 290억
+    exclusivePyeong: 480,
+    supplyPyeong: 680,
+    exclusiveAreaM2: 1586.7,
+    supplyAreaM2: 2247.9,
+    rooms: 12,
+    baths: 16,
+    parking: 14,
+    floor: 8,
+    totalFloors: 8,
+    direction: '남향',
+    builtYear: 2024,
+    moveInDate: '명도 완료 / 즉시 입주 및 임대승계 가능',
+    maintenanceCost: 350,
+    maintenanceCostDesc: '승강기 유지보수 및 기계식·자주식 주차 관리비',
+    images: [
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '역삼역과 선릉역 사이 테헤란로 이면 코너에 2024년 신축된 하이엔드 사옥 및 메디컬 빌딩입니다. 대지면적 130평, 연면적 680평 규모로 현대적인 커튼월 외관과 옥상 하늘정원을 갖추고 있습니다. 전 층 층고 4.2m의 개방감과 14대 주차가 가능한 자주식/기계식 주차 시스템을 겸비하여 병의원, 바이오, IT 스타트업 본사 사옥으로 최적화되어 있습니다.',
+    features: [
+      '2024 준공 테헤란로 신축 코너 빌딩',
+      '연면적 680평, 지하 1층~지상 8층',
+      '전 층 층고 4.2m 시원한 개방감',
+      '자주식 + 최신 기계식 주차 총 14대',
+      '예상 연 임대수익률 4.2% 안정적 수익',
+      '루프탑 스카이 가든 및 테라스'
+    ],
+    schools: [],
+    subway: {
+      station: '역삼역 (2호선) / 선릉역 (2호선, 수인분당선)',
+      walkMinutes: 4,
+      lines: ['2호선', '수인분당선']
+    },
+    isVipExclusive: true,
+    isHot: true,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.commercial_lead,
+    coordinates: { lat: 37.5008, lng: 127.0366 }
+  },
+  {
+    id: 'addr-11',
+    titleKo: '여의도 브라이튼 럭셔리 하이라이즈',
+    subTitle: '더현대 서울 슬세권과 여의도 한강공원 파노라마 뷰',
+    region: '서울시 영등포구 여의도동',
+    district: '여의도/마포',
+    addressShort: '국제금융로 39',
+    roadAddress: '서울특별시 영등포구 국제금융로 39 (여의도동)',
+    listingType: 'sale',
+    propertyType: 'apartment',
+    price: 420000, // 42억
+    exclusivePyeong: 43,
+    supplyPyeong: 58,
+    exclusiveAreaM2: 142.1,
+    supplyAreaM2: 191.7,
+    rooms: 4,
+    baths: 2,
+    parking: 2,
+    floor: 41,
+    totalFloors: 49,
+    direction: '남서향',
+    builtYear: 2023,
+    moveInDate: '2026년 10월 입주 협의',
+    maintenanceCost: 50,
+    maintenanceCostDesc: '일반관리비 및 조식 서비스, 피트니스 이용료',
+    images: [
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '여의도의 새로운 스카이라인을 창조한 브라이튼 여의도 41층 초고층 세대입니다. 거실 전면에서 한강과 샛강 생태공원이 시원하게 펼쳐지며, 더현대 서울과 IFC몰이 바로 길 건너에 위치하여 쇼핑, 다이닝, 문화생활을 집 앞에서 모두 누릴 수 있습니다. 신라호텔 수준의 조식 서비스와 호텔식 게스트하우스가 운영 중입니다.',
+    features: [
+      '더현대 서울 & IFC몰 도보 1분 슬세권',
+      '41층 초고층 한강 & 도심 시티뷰',
+      '조식 딜리버리 및 케이터링 서비스',
+      '여의도역(5, 9호선) & 여의나루역 더블 역세권',
+      '유러피언 하이엔드 수입 주방가구'
+    ],
+    schools: [
+      { name: '여의도초등학교', type: '초등', distance: '도보 6분', ratingNote: '여의도 중심 안심 통학' },
+      { name: '여의도중·고등학교', type: '고등', distance: '도보 8분', ratingNote: '우수 학군' }
+    ],
+    subway: {
+      station: '여의도역 (5호선, 9호선) / 여의나루역 (5호선)',
+      walkMinutes: 4,
+      lines: ['5호선', '9호선']
+    },
+    isVipExclusive: false,
+    isHot: false,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.residential_lead,
+    coordinates: { lat: 37.5251, lng: 126.9284 }
+  },
+  {
+    id: 'addr-12',
+    titleKo: '평창동 오운 갤러리 단독주택',
+    subTitle: '북한산 자락 사계절 자연과 프라이빗 조각 정원의 대저택',
+    region: '서울시 종로구 평창동',
+    district: '용산/한남',
+    addressShort: '평창문화로 120',
+    roadAddress: '서울특별시 종로구 평창문화로 120 (평창동)',
+    listingType: 'sale',
+    propertyType: 'house',
+    price: 680000, // 68억
+    exclusivePyeong: 110,
+    supplyPyeong: 180,
+    exclusiveAreaM2: 363.6,
+    supplyAreaM2: 595.0,
+    rooms: 6,
+    baths: 5,
+    parking: 4,
+    floor: 2,
+    totalFloors: 2,
+    direction: '남향',
+    builtYear: 2022,
+    moveInDate: '즉시 입주 협의',
+    maintenanceCost: 90,
+    maintenanceCostDesc: '개별 정원 조경 및 보안 무인경비 시스템',
+    images: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80'
+    ],
+    descriptionKo: '전통적인 부촌 평창동의 북한산 비봉을 마주하는 최고급 모던 갤러리 하우스입니다. 건축대상을 수상한 건축가의 작품으로 중정과 수공간, 150평 규모의 프라이빗 정원을 갖추고 있습니다. 지하에는 단독 갤러리 및 와인셀러, AV룸이 구비되어 있으며 실내 엘리베이터로 전 층이 연결됩니다. 기업 총수 및 문화예술계 거장을 위한 안식처입니다.',
+    features: [
+      '대지 210평, 연면적 180평 대저택',
+      '북한산 비봉 마주하는 영구 자연조망',
+      '지하 단독 프라이빗 갤러리 & 와인룸',
+      '실내 개인 승강기 완비',
+      '차고 4대 완비 및 경비 초소 연계'
+    ],
+    schools: [
+      { name: '서울세검정초등학교', type: '초등', distance: '차량 5분', ratingNote: '종로 대표 공립초' },
+      { name: '상명사대부속여고', type: '고등', distance: '차량 6분', ratingNote: '명문 사립고' }
+    ],
+    subway: {
+      station: '광화문·시청 차량 15분 도심 접근',
+      walkMinutes: 15,
+      lines: ['3호선 경복궁역 연계']
+    },
+    isVipExclusive: true,
+    isHot: false,
+    isFeatured: true,
+    agent: PRINCIPAL_BROKERS.luxury_team,
+    coordinates: { lat: 37.6083, lng: 126.9691 }
+  }
+];
+
+export const INITIAL_PROPERTIES = PROPERTIES_DATA;
+
+export const INITIAL_INQUIRIES = [
+  {
+    id: 'inq-sample-1',
+    name: '김태원',
+    phone: '010-8921-3310',
+    type: 'tour' as const,
+    propertyId: 'prop-hannam-hill',
+    propertyTitle: '한남더힐 테라스하우스 로열동',
+    preferredDate: '2026.03.20',
+    preferredTime: '오후 2:00',
+    notes: '주말 오후 1:1 프라이빗 현장 투어 희망',
+    createdAt: '2026.03.15 14:30',
+    status: 'pending' as const
+  },
+  {
+    id: 'inq-sample-2',
+    name: '이수진',
+    phone: '010-5541-9022',
+    type: 'consultation' as const,
+    targetRegion: '강남/청담',
+    budget: '100억 이상',
+    notes: '에테르노 또는 PH129 복층 펜트하우스 매수 상담',
+    createdAt: '2026.03.16 11:10',
+    status: 'in_progress' as const
   }
 ];
