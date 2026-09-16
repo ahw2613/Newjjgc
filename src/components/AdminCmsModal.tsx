@@ -122,81 +122,75 @@ export const AdminCmsModal: React.FC<AdminCmsModalProps> = ({
   const totalAssetValue = properties.reduce((acc, curr) => acc + curr.price, 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
       <div 
         id="admin-cms-modal"
-        className="relative w-full max-w-5xl bg-slate-900 text-slate-100 rounded-3xl shadow-2xl border border-slate-800 overflow-hidden flex flex-col max-h-[92vh]"
+        className="relative w-full max-w-5xl bg-[#111111] text-neutral-100 shadow-2xl border border-neutral-800 overflow-hidden flex flex-col max-h-[92vh]"
       >
         {/* Header */}
-        <div className="p-4 sm:p-6 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
-              <Settings className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-white">디 어드레스 통합 관리자 CMS</h3>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  LIVE DEMO
-                </span>
-              </div>
-              <p className="text-xs text-slate-400">매물 등록·수정·삭제 및 실시간 상담·투어 예약 접수 현황</p>
-            </div>
+        <div className="p-4 sm:p-6 bg-[#161616] border-b border-neutral-800 flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-medium text-white uppercase tracking-widest">
+              THE ADDRESS ADMIN CONSOLE
+            </h3>
+            <p className="text-xs text-neutral-400 font-light mt-0.5">
+              Portfolio &amp; Lead Management System
+            </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition"
+            className="text-xs uppercase tracking-widest text-neutral-400 hover:text-white transition"
           >
-            <X className="w-6 h-6" />
+            CLOSE ✕
           </button>
         </div>
 
         {/* Overview Stats Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 sm:px-6 bg-slate-900/60 border-b border-slate-800 text-xs">
-          <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <span className="text-[10px] text-slate-400 block">총 등록 매물</span>
-            <span className="text-base font-bold text-amber-400 mt-0.5 block">{properties.length}개</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 sm:px-6 bg-[#141414] border-b border-neutral-800 text-xs">
+          <div>
+            <span className="text-[10px] text-neutral-400 uppercase tracking-wider block">총 등록 매물</span>
+            <span className="text-base font-semibold text-white mt-0.5 block">{properties.length} Units</span>
           </div>
-          <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <span className="text-[10px] text-slate-400 block">총 매물 자산 규모</span>
-            <span className="text-base font-bold text-white mt-0.5 block">{formatManwonToKorean(totalAssetValue)}</span>
+          <div>
+            <span className="text-[10px] text-neutral-400 uppercase tracking-wider block">총 포트폴리오 가액</span>
+            <span className="text-base font-semibold text-white mt-0.5 block">{formatManwonToKorean(totalAssetValue)}</span>
           </div>
-          <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <span className="text-[10px] text-slate-400 block">접수된 상담·투어 문의</span>
-            <span className="text-base font-bold text-emerald-400 mt-0.5 block">{inquiries.length}건</span>
+          <div>
+            <span className="text-[10px] text-neutral-400 uppercase tracking-wider block">상담 및 투어 문의</span>
+            <span className="text-base font-semibold text-white mt-0.5 block">{inquiries.length} Inquiries</span>
           </div>
-          <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <span className="text-[10px] text-slate-400 block">시스템 상태</span>
-            <span className="text-base font-bold text-blue-400 mt-0.5 block">정상 운영중</span>
+          <div>
+            <span className="text-[10px] text-neutral-400 uppercase tracking-wider block">시스템 상태</span>
+            <span className="text-base font-semibold text-neutral-300 mt-0.5 block">Active</span>
           </div>
         </div>
 
         {/* Tab Controls */}
-        <div className="flex items-center gap-2 px-6 pt-3 border-b border-slate-800">
+        <div className="flex items-center space-x-6 px-6 pt-4 border-b border-neutral-800 text-xs uppercase tracking-widest font-medium">
           <button
             onClick={() => setActiveTab('properties')}
-            className={`pb-3 px-3 text-xs font-bold border-b-2 transition ${
-              activeTab === 'properties' ? 'border-amber-400 text-amber-400' : 'border-transparent text-slate-400 hover:text-white'
+            className={`pb-3 transition-colors ${
+              activeTab === 'properties' ? 'border-b-2 border-white text-white' : 'text-neutral-400 hover:text-white'
             }`}
           >
-            매물 목록 관리 ({properties.length})
+            PROPERTIES ({properties.length})
           </button>
           <button
             onClick={() => setActiveTab('inquiries')}
-            className={`pb-3 px-3 text-xs font-bold border-b-2 transition ${
-              activeTab === 'inquiries' ? 'border-amber-400 text-amber-400' : 'border-transparent text-slate-400 hover:text-white'
+            className={`pb-3 transition-colors ${
+              activeTab === 'inquiries' ? 'border-b-2 border-white text-white' : 'text-neutral-400 hover:text-white'
             }`}
           >
-            접수 문의 관리 ({inquiries.length})
+            INQUIRIES ({inquiries.length})
           </button>
           <button
             onClick={() => setActiveTab('add')}
-            className={`pb-3 px-3 text-xs font-bold border-b-2 transition ${
-              activeTab === 'add' ? 'border-amber-400 text-amber-400' : 'border-transparent text-slate-400 hover:text-white'
+            className={`pb-3 transition-colors ${
+              activeTab === 'add' ? 'border-b-2 border-white text-white' : 'text-neutral-400 hover:text-white'
             }`}
           >
-            + 신규 매물 등록
+            + ADD PROPERTY
           </button>
         </div>
 

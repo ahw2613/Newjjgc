@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { X, Calculator, Sparkles } from 'lucide-react';
 import { calculateAcquisitionTax, calculateBrokerageFee, calculateMortgageMonthly, formatManwonToKorean } from '../utils/formatters';
 
 interface MortgageCalculatorModalProps {
@@ -27,132 +26,100 @@ export const MortgageCalculatorModal: React.FC<MortgageCalculatorModalProps> = (
   const mortgageResult = calculateMortgageMonthly(loanPrincipal, interestRate, loanYears);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
         id="mortgage-calculator-modal"
-        className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-2xl bg-white text-[#111111] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-5 bg-slate-950 text-white flex items-center justify-between border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
-              <Calculator className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">취득세 & 주택담보대출 정밀 계산기</h3>
-              <p className="text-[11px] text-slate-400">현행 세법 기준 취득세, 법정 중개수수료 및 원리금 균등상환액 시뮬레이션</p>
-            </div>
+        <div className="px-6 py-5 flex items-center justify-between border-b border-neutral-100">
+          <div>
+            <h3 className="text-lg font-light tracking-wide uppercase">
+              FINANCIAL &amp; TAX SIMULATOR
+            </h3>
+            <p className="text-xs text-neutral-400 font-light mt-0.5">
+              대한민국 현행 세법 기준 취득세 및 원리금 상환 시뮬레이션
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition"
+            className="text-xs uppercase tracking-widest font-semibold hover:opacity-60 transition"
           >
-            <X className="w-5 h-5" />
+            CLOSE ✕
           </button>
         </div>
 
         {/* Form Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 text-slate-800">
-          {/* Inputs */}
-          <div className="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+          {/* Controls */}
+          <div className="space-y-4">
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-slate-700">매매 취득가액</label>
-                <span className="text-sm font-black text-amber-700">{priceInEok}억원 ({formatManwonToKorean(priceInManwon)})</span>
+              <div className="flex justify-between mb-1 text-xs">
+                <label className="uppercase tracking-wider text-neutral-500 font-medium">매매 예상가액</label>
+                <span className="font-semibold text-sm">{priceInEok}억원</span>
               </div>
               <input
                 type="range"
-                min={10}
-                max={200}
-                step={5}
+                min="5"
+                max="250"
+                step="5"
                 value={priceInEok}
                 onChange={(e) => setPriceInEok(Number(e.target.value))}
-                className="w-full accent-amber-500"
+                className="w-full accent-black cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                <span>10억원</span>
-                <span>50억원</span>
-                <span>100억원</span>
-                <span>200억원</span>
-              </div>
             </div>
 
-            {/* House count selection */}
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1.5">취득 시 세대 보유 주택수</label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setHouseCount(1)}
-                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition ${
-                    houseCount === 1
-                      ? 'bg-slate-900 text-amber-300 border-slate-900 shadow-sm'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  1주택자 (기본세율)
-                </button>
-                <button
-                  onClick={() => setHouseCount(2)}
-                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition ${
-                    houseCount === 2
-                      ? 'bg-slate-900 text-amber-300 border-slate-900 shadow-sm'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  2주택자 (중과 8%)
-                </button>
-                <button
-                  onClick={() => setHouseCount(3)}
-                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition ${
-                    houseCount === 3
-                      ? 'bg-slate-900 text-amber-300 border-slate-900 shadow-sm'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  3주택 이상 (중과 12%)
-                </button>
-              </div>
-            </div>
-
-            {/* Mortgage Controls */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div>
-                <label className="text-xs font-semibold text-slate-600 block mb-1">
-                  대출비율 LTV ({ltvPercent}%)
-                </label>
-                <select
+                <label className="block uppercase tracking-wider text-neutral-500 mb-1.5 font-medium">취득 주택수</label>
+                <div className="flex border border-neutral-200">
+                  {[1, 2, 3].map((cnt) => (
+                    <button
+                      key={cnt}
+                      type="button"
+                      onClick={() => setHouseCount(cnt as any)}
+                      className={`flex-1 py-2 text-xs font-medium transition ${
+                        houseCount === cnt ? 'bg-[#111111] text-white' : 'bg-white text-neutral-600 hover:bg-neutral-50'
+                      }`}
+                    >
+                      {cnt === 1 ? '1주택' : `${cnt}주택 (중과)`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block uppercase tracking-wider text-neutral-500 mb-1.5 font-medium">LTV 담보대출 비율 ({ltvPercent}%)</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="70"
+                  step="10"
                   value={ltvPercent}
                   onChange={(e) => setLtvPercent(Number(e.target.value))}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-medium"
-                >
-                  <option value={20}>20% ({formatManwonToKorean(Math.round(priceInManwon * 0.2))})</option>
-                  <option value={30}>30% ({formatManwonToKorean(Math.round(priceInManwon * 0.3))})</option>
-                  <option value={40}>40% ({formatManwonToKorean(Math.round(priceInManwon * 0.4))})</option>
-                  <option value={50}>50% ({formatManwonToKorean(Math.round(priceInManwon * 0.5))})</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-slate-600 block mb-1">
-                  대출 금리 (연 {interestRate}%)
-                </label>
-                <input
-                  type="number"
-                  step={0.1}
-                  value={interestRate}
-                  onChange={(e) => setInterestRate(Number(e.target.value))}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-medium"
+                  className="w-full accent-black cursor-pointer mt-2"
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div>
-                <label className="text-xs font-semibold text-slate-600 block mb-1">
-                  상환 기간
-                </label>
+                <label className="block uppercase tracking-wider text-neutral-500 mb-1 font-medium">대출 연이율 (%)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(Number(e.target.value))}
+                  className="w-full p-2.5 border border-neutral-200 text-sm focus:outline-none focus:border-black"
+                />
+              </div>
+              <div>
+                <label className="block uppercase tracking-wider text-neutral-500 mb-1 font-medium">대출 상환 만기 (년)</label>
                 <select
                   value={loanYears}
                   onChange={(e) => setLoanYears(Number(e.target.value))}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-medium"
+                  className="w-full p-2.5 border border-neutral-200 text-sm bg-white focus:outline-none focus:border-black"
                 >
                   <option value={10}>10년 만기</option>
                   <option value={20}>20년 만기</option>
@@ -163,46 +130,26 @@ export const MortgageCalculatorModal: React.FC<MortgageCalculatorModalProps> = (
             </div>
           </div>
 
-          {/* Results Display */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">산출 결과 요약</h4>
-
-            {/* Tax & Fee */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <span className="text-xs text-slate-500 block">취득세 총 세액 (세율 {taxResult.taxRate}%)</span>
-                <span className="text-lg font-black text-slate-900 mt-1 block">
-                  {formatManwonToKorean(taxResult.totalTax)}
-                </span>
-                <span className="text-[10px] text-slate-400 mt-0.5 block">
-                  지방교육세 및 농특세 포함
-                </span>
+          {/* Result Breakdown */}
+          <div className="pt-6 border-t border-neutral-100">
+            <p className="text-xs uppercase tracking-widest text-neutral-400 font-semibold mb-4">
+              ESTIMATED RESULTS
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-4 bg-neutral-50">
+                <p className="text-neutral-500 text-[11px] uppercase tracking-wider mb-1">예상 취득세액</p>
+                <p className="text-xl font-semibold text-[#111111]">{formatManwonToKorean(taxResult.totalTax)}</p>
+                <p className="text-[11px] text-neutral-400 mt-1">실효세율 {taxResult.taxRate}%</p>
               </div>
-
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <span className="text-xs text-slate-500 block">법정 중개보수 한도 (상한 {feeResult.feeRate}%)</span>
-                <span className="text-lg font-black text-slate-900 mt-1 block">
-                  {formatManwonToKorean(feeResult.total)}
-                </span>
-                <span className="text-[10px] text-slate-400 mt-0.5 block">
-                  부가세 10% 포함 상한액
-                </span>
+              <div className="p-4 bg-neutral-50">
+                <p className="text-neutral-500 text-[11px] uppercase tracking-wider mb-1">법정 중개보수</p>
+                <p className="text-xl font-semibold text-[#111111]">{formatManwonToKorean(feeResult.total)}</p>
+                <p className="text-[11px] text-neutral-400 mt-1">상한요율 {(feeResult.feeRate * 100).toFixed(2)}%</p>
               </div>
-            </div>
-
-            {/* Monthly Mortgage Banner */}
-            <div className="bg-slate-950 text-white p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <span className="text-xs text-amber-400 font-bold block">
-                  예상 월 원리금 상환액 (원금 {formatManwonToKorean(loanPrincipal)})
-                </span>
-                <span className="text-2xl font-black text-white mt-1 block">
-                  월 약 {formatManwonToKorean(mortgageResult.monthlyPayment)}
-                </span>
-              </div>
-              <div className="text-right text-xs text-slate-400">
-                <p>총 대출이자: {formatManwonToKorean(mortgageResult.totalInterest)}</p>
-                <p>총 원리금 합계: {formatManwonToKorean(mortgageResult.totalPayment)}</p>
+              <div className="p-4 bg-neutral-50">
+                <p className="text-neutral-500 text-[11px] uppercase tracking-wider mb-1">월 원리금 상환액</p>
+                <p className="text-xl font-semibold text-[#111111]">{mortgageResult.toLocaleString()}만원</p>
+                <p className="text-[11px] text-neutral-400 mt-1">대출원금 {(loanPrincipal / 10000).toFixed(1)}억원</p>
               </div>
             </div>
           </div>

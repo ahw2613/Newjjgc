@@ -250,9 +250,19 @@ export default function App() {
     }
   };
 
+  const handleSelectNav = (type: 'buy' | 'rent' | 'sell' | 'properties' | 'about' | 'contact') => {
+    if (type === 'buy') {
+      setFilters(prev => ({ ...prev, listingType: 'sale', searchQuery: '' }));
+    } else if (type === 'rent') {
+      setFilters(prev => ({ ...prev, listingType: 'rent', searchQuery: '' }));
+    } else if (type === 'properties') {
+      setFilters(prev => ({ ...prev, listingType: 'all' }));
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
-      {/* 1. Global Navigation Bar */}
+    <div className="min-h-screen bg-white text-[#111111] flex flex-col font-sans selection:bg-black selection:text-white">
+      {/* 1. Global Navigation Bar (Minimalist Luxury Brokerage Header) */}
       <Navbar
         favoritesCount={favorites.length}
         onOpenFavorites={() => setIsFavoritesOpen(true)}
@@ -263,9 +273,10 @@ export default function App() {
         onOpenCalculator={() => setIsCalculatorOpen(true)}
         onOpenSellModal={() => setIsSellModalOpen(true)}
         onOpenAdminModal={() => setIsAdminOpen(true)}
+        onSelectNav={handleSelectNav}
       />
 
-      {/* 2. NJ Street Style Hero Search */}
+      {/* 2. Zillow + Compass Full-Bleed Hero Search */}
       <HeroSearch
         filters={filters}
         setFilters={setFilters}
@@ -274,7 +285,7 @@ export default function App() {
         onOpenSellModal={() => setIsSellModalOpen(true)}
       />
 
-      {/* 3. Core Property Listings with Interactive Split Map View & Filters */}
+      {/* 3. Core Property Listings (Grid & Map Split View) */}
       <PropertyList
         properties={filteredProperties}
         filters={filters}
@@ -288,14 +299,15 @@ export default function App() {
         onResetFilters={handleResetFilters}
       />
 
-      {/* 4. Luxury District & School/Market Intelligence Guide */}
+      {/* 4. Luxury District Editorial Gallery */}
       <LocationsSection
         onSelectDistrictFilter={handleSelectDistrictFromGuide}
       />
 
-      {/* 5. 4 Core Prestige Advisory Services */}
+      {/* 5. 3 Pillar Architectural Practices (Buy, Sell, Lease) */}
       <ServicesSection
         onOpenSellModal={() => setIsSellModalOpen(true)}
+        onSelectBuy={() => handleSelectNav('buy')}
         onOpenVipConsultModal={() => {
           const contactElement = document.getElementById('contact-section');
           if (contactElement) {
@@ -304,15 +316,15 @@ export default function App() {
         }}
       />
 
-      {/* 6. Brand Heritage, Certified Broker Team, 20-Billion KRW Guarantee */}
+      {/* 6. Brand Heritage & 50/50 Editorial Architecture */}
       <AboutSection />
 
-      {/* 7. Private VIP 1:1 Consultation Booking & FAQ */}
+      {/* 7. Private Advisory Inquiry Form */}
       <ContactSection
         onSubmitInquiry={handleSubmitInquiry}
       />
 
-      {/* 8. Full Legal Disclosure Luxury Footer */}
+      {/* 8. Sotheby's Style Legal Footer */}
       <Footer
         onOpenCalculator={() => setIsCalculatorOpen(true)}
         onOpenSellModal={() => setIsSellModalOpen(true)}

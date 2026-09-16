@@ -1,209 +1,179 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Building, ChevronDown, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { FilterState, ListingType } from '../types';
 
 interface HeroSearchProps {
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  onSearchSubmit: () => void;
-  onSelectTag: (keyword: string) => void;
+  totalCount?: number;
+  onOpenCalculator?: () => void;
+  onOpenSellModal?: () => void;
 }
 
 export const HeroSearch: React.FC<HeroSearchProps> = ({
   filters,
   setFilters,
-  onSearchSubmit,
-  onSelectTag
+  onOpenSellModal
 }) => {
-  const [activeTab, setActiveTab] = useState<'all' | ListingType>('all');
-  const [keyword, setKeyword] = useState(filters.searchQuery);
-
-  const tabs: { id: 'all' | ListingType; label: string }[] = [
-    { id: 'all', label: '전체 매물' },
-    { id: 'sale', label: '매매' },
-    { id: 'jeonse', label: '전세' },
-    { id: 'rent', label: '월세' },
-    { id: 'commercial', label: '상업용 · 빌딩' }
-  ];
-
-  const popularTags = [
-    '나인원 한남',
-    '아크로 서울포레스트',
-    'PH129 청담',
-    '래미안 원베일리',
-    '압구정 현대 재건축',
-    '테헤란로 신축빌딩',
-    '광주 봉선동 펜트'
-  ];
+  const [activeTab, setActiveTab] = useState<'all' | 'sale' | 'rent' | 'sell'>('all');
+  const [query, setQuery] = useState(filters.searchQuery);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (activeTab === 'sell') {
+      if (onOpenSellModal) onOpenSellModal();
+      return;
+    }
+
     setFilters(prev => ({
       ...prev,
-      listingType: activeTab,
-      searchQuery: keyword
+      listingType: activeTab === 'all' ? 'all' : (activeTab as ListingType),
+      searchQuery: query
     }));
-    onSearchSubmit();
+
+    const elem = document.getElementById('properties-section');
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
-  const handleTabSelect = (tabId: 'all' | ListingType) => {
-    setActiveTab(tabId);
+  const handleTabClick = (tab: 'all' | 'sale' | 'rent' | 'sell') => {
+    setActiveTab(tab);
+    if (tab === 'sell') {
+      if (onOpenSellModal) onOpenSellModal();
+      return;
+    }
     setFilters(prev => ({
       ...prev,
-      listingType: tabId
+      listingType: tab === 'all' ? 'all' : (tab as ListingType)
     }));
+  };
+
+  const handleQuickLocation = (loc: string) => {
+    setFilters(prev => ({
+      ...prev,
+      district: loc,
+      searchQuery: ''
+    }));
+    const elem = document.getElementById('properties-section');
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
-    <section id="hero-section" className="relative min-h-[640px] lg:min-h-[720px] flex items-center justify-center pt-24 pb-16 overflow-hidden bg-slate-950">
-      {/* Background Media with Gradient Mask */}
+    <section className="relative min-h-screen flex items-center justify-center bg-[#0d0d0d] text-white overflow-hidden px-6">
+      {/* Full-bleed high resolution architectural visual (Sotheby's / Compass style) */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85"
-          alt="Luxury Architecture"
-          className="w-full h-full object-cover object-center opacity-40 scale-105 transform animate-pulse duration-10000"
+          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85"
+          alt="The Address Luxury Residence"
+          className="w-full h-full object-cover object-center opacity-45 scale-105 transition-transform duration-[10000ms] ease-out"
         />
-        {/* Multilayered Luxury Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/50" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/60" />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full">
-        {/* Eyebrow / Tagline */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-md">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>Prestige Living · Verified Value</span>
-        </div>
-
-        {/* Hero Title */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.2] mb-4">
-          대한민국 하이엔드 주거와 <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 bg-clip-text text-transparent">
-            프라이빗 자산관리의 기준
-          </span>
-        </h1>
-
-        <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-300 font-light mb-10 leading-relaxed">
-          한남·청담·성수·반포의 최상위 랜드마크 펜트하우스부터 테헤란로 상업용 사옥까지, 
-          엄선된 검증 매물과 1:1 VIP 전속 공인중개 서비스를 제공합니다.
+      {/* Hero Content - Restrained typography and deliberate white space */}
+      <div className="relative z-10 w-full max-w-4xl mx-auto text-center flex flex-col items-center pt-20 pb-12">
+        <p className="text-xs sm:text-sm font-medium tracking-[0.3em] uppercase opacity-80 mb-4">
+          THE ADDRESS
         </p>
 
-        {/* Search Box Container */}
-        <div className="max-w-4xl mx-auto bg-slate-900/90 backdrop-blur-xl p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-2xl shadow-black/50 text-left">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-white mb-10 leading-[1.1]">
+          Find Your Place.
+        </h1>
+
+        {/* Search Architecture (Zillow + Compass style) */}
+        <div className="w-full max-w-2xl">
           {/* Tab Selector */}
-          <div className="flex items-center gap-1 sm:gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar border-b border-slate-800/80">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                id={`hero-tab-${tab.id}`}
-                onClick={() => handleTabSelect(tab.id)}
-                className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-amber-500 text-slate-950 shadow-md'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex items-center justify-center space-x-8 mb-4 text-[13px] font-medium tracking-[0.2em] uppercase">
+            <button
+              type="button"
+              onClick={() => handleTabClick('all')}
+              className={`pb-1 transition-all ${
+                activeTab === 'all'
+                  ? 'text-white border-b border-white'
+                  : 'text-white/60 hover:text-white border-b border-transparent'
+              }`}
+            >
+              ALL
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTabClick('sale')}
+              className={`pb-1 transition-all ${
+                activeTab === 'sale'
+                  ? 'text-white border-b border-white'
+                  : 'text-white/60 hover:text-white border-b border-transparent'
+              }`}
+            >
+              BUY
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTabClick('rent')}
+              className={`pb-1 transition-all ${
+                activeTab === 'rent'
+                  ? 'text-white border-b border-white'
+                  : 'text-white/60 hover:text-white border-b border-transparent'
+              }`}
+            >
+              RENT
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTabClick('sell')}
+              className={`pb-1 transition-all ${
+                activeTab === 'sell'
+                  ? 'text-white border-b border-white'
+                  : 'text-white/60 hover:text-white border-b border-transparent'
+              }`}
+            >
+              SELL
+            </button>
           </div>
 
-          {/* Form Controls */}
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-3 items-center">
-            {/* Main Keyword Input */}
-            <div className="md:col-span-6 relative">
-              <label className="block text-[11px] font-medium text-slate-400 mb-1 ml-1">지역 / 단지명 / 매물명</label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-amber-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  id="hero-search-input"
-                  type="text"
-                  placeholder="예: 나인원한남, 성수, 청담, 압구정 현대..."
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
-                />
-              </div>
-            </div>
-
-            {/* Region Select */}
-            <div className="md:col-span-3">
-              <label className="block text-[11px] font-medium text-slate-400 mb-1 ml-1">주요 권역 선택</label>
-              <div className="relative">
-                <select
-                  id="hero-district-select"
-                  value={filters.district}
-                  onChange={(e) => setFilters(prev => ({ ...prev, district: e.target.value }))}
-                  className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-3 text-sm text-slate-200 focus:outline-none focus:border-amber-500 transition appearance-none cursor-pointer"
-                >
-                  <option value="all">권역 전체 (서울·수도권·광주)</option>
-                  <option value="용산/한남">용산 / 한남동 권역</option>
-                  <option value="강남/청담">강남 / 청담·압구정</option>
-                  <option value="성동/성수">성동 / 성수동 서울숲</option>
-                  <option value="서초/반포">서초 / 반포 한강변</option>
-                  <option value="송파/잠실">송파 / 잠실 롯데월드타워</option>
-                  <option value="여의도/마포">여의도 / 마포 한강</option>
-                  <option value="광주/봉선">광주 / 봉선동 명문학군</option>
-                </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Search Button */}
-            <div className="md:col-span-3 pt-1 md:pt-4">
-              <button
-                id="btn-hero-submit"
-                type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold py-3 px-5 rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95"
-              >
-                <Search className="w-4 h-4 stroke-[2.5]" />
-                <span>매물 검색하기</span>
-              </button>
-            </div>
+          {/* Search Box - Crisp, clean, uncluttered */}
+          <form 
+            onSubmit={handleSearch}
+            className="w-full bg-white rounded-none sm:rounded-sm shadow-2xl flex flex-col sm:flex-row items-stretch overflow-hidden text-[#111111]"
+          >
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by location, property or address..."
+              className="flex-1 px-6 py-4 sm:py-5 text-sm sm:text-base font-normal bg-transparent focus:outline-none placeholder-neutral-400"
+            />
+            <button
+              type="submit"
+              className="bg-[#111111] hover:bg-neutral-800 text-white px-8 py-4 sm:py-5 text-xs sm:text-sm font-medium tracking-[0.15em] uppercase transition-colors"
+            >
+              SEARCH
+            </button>
           </form>
 
-          {/* Quick Tag Pills */}
-          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] text-slate-400 font-medium mr-1 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              인기 추천:
-            </span>
-            {popularTags.map(tag => (
-              <button
-                key={tag}
-                id={`quick-tag-${tag.replace(/\s+/g, '-')}`}
-                type="button"
-                onClick={() => {
-                  setKeyword(tag);
-                  onSelectTag(tag);
-                }}
-                className="text-[11px] px-2.5 py-1 rounded-full bg-slate-800/70 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 border border-slate-700/60 transition"
-              >
-                #{tag}
-              </button>
-            ))}
+          {/* Subtle Location Quicklinks */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/70 font-light tracking-wide">
+            <span className="text-white/40 uppercase tracking-widest text-[11px]">Popular:</span>
+            <button onClick={() => handleQuickLocation('용산/한남')} className="hover:text-white hover:underline underline-offset-4 transition">한남</button>
+            <button onClick={() => handleQuickLocation('강남/청담')} className="hover:text-white hover:underline underline-offset-4 transition">청담</button>
+            <button onClick={() => handleQuickLocation('성동/성수')} className="hover:text-white hover:underline underline-offset-4 transition">성수</button>
+            <button onClick={() => handleQuickLocation('서초/반포')} className="hover:text-white hover:underline underline-offset-4 transition">반포</button>
+            <button onClick={() => handleQuickLocation('송파/잠실')} className="hover:text-white hover:underline underline-offset-4 transition">잠실</button>
+            <button onClick={() => handleQuickLocation('광주/봉선')} className="hover:text-white hover:underline underline-offset-4 transition">광주 봉선</button>
           </div>
         </div>
+      </div>
 
-        {/* Real Estate Credibility Metrics */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto border-t border-slate-800/80 pt-8 text-slate-300">
-          <div>
-            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">1조 8,500억+</p>
-            <p className="text-xs text-slate-400 mt-1">누적 하이엔드 중개 실적</p>
-          </div>
-          <div>
-            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">99.4%</p>
-            <p className="text-xs text-slate-400 mt-1">VIP 고객 전속 재계약률</p>
-          </div>
-          <div>
-            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">20억원</p>
-            <p className="text-xs text-slate-400 mt-1">공제증서 보증보험 가입</p>
-          </div>
-          <div>
-            <p className="text-2xl lg:text-3xl font-bold font-['Cinzel',serif] text-amber-400">1:1 Private</p>
-            <p className="text-xs text-slate-400 mt-1">변호사·세무사 제휴 자산관리</p>
-          </div>
-        </div>
+      {/* Subtle Scroll Cue */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-60 hover:opacity-100 transition cursor-pointer"
+        onClick={() => {
+          const elem = document.getElementById('properties-section');
+          if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+        }}
+      >
+        <span className="text-[10px] uppercase tracking-[0.25em] font-light mb-1">EXPLORE</span>
+        <div className="w-[1px] h-6 bg-white/40" />
       </div>
     </section>
   );
