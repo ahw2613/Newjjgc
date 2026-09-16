@@ -1,0 +1,6 @@
+{
+  "name": "NJStreet - 뉴저지 부동산 포털",
+  "description": "뉴저지 한인 맞춤형 부동산 전문 포털. 포트리, 팰팍, 버겐카운티 매매·렌트·상업용 매물 검색, 학군 가이드 및 모기지 계산기",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
