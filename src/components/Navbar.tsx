@@ -28,9 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 30);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -41,181 +39,65 @@ export const Navbar: React.FC<NavbarProps> = ({
       onOpenSellModal();
       return;
     }
-    if (filterType && onSelectNav) {
-      onSelectNav(filterType);
-    }
+    if (filterType && onSelectNav) onSelectNav(filterType);
     const elem = document.getElementById(sectionId);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
   };
 
-  return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-md text-[#111111] shadow-[0_1px_0_0_rgba(0,0,0,0.05)]' 
-          : 'bg-gradient-to-b from-black/60 via-black/30 to-transparent text-white'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
-        {/* Brand Logo - Minimalist Luxury Typography */}
-        <a 
-          href="#" 
-          onClick={(e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          className="text-lg lg:text-xl font-semibold tracking-[0.25em] uppercase hover:opacity-80 transition-opacity"
-        >
-          THE ADDRESS
-        </a>
+  const navClass = isScrolled ? 'text-[#171717]' : 'text-white';
 
-        {/* Center Navigation Links (Compass / Sotheby's style - No icons, pure typography) */}
-        <nav className="hidden md:flex items-center space-x-9 text-[13px] font-medium tracking-[0.15em] uppercase">
-          <button
-            onClick={() => handleNavClick('properties-section', 'buy')}
-            className="hover:opacity-60 transition-opacity"
-          >
-            BUY
-          </button>
-          <button
-            onClick={() => handleNavClick('properties-section', 'rent')}
-            className="hover:opacity-60 transition-opacity"
-          >
-            RENT
-          </button>
-          <button
-            onClick={() => onOpenSellModal()}
-            className="hover:opacity-60 transition-opacity"
-          >
-            SELL
-          </button>
-          <button
-            onClick={() => handleNavClick('properties-section')}
-            className="hover:opacity-60 transition-opacity"
-          >
-            PROPERTIES
-          </button>
-          <button
-            onClick={() => handleNavClick('about-section')}
-            className="hover:opacity-60 transition-opacity"
-          >
-            ABOUT
-          </button>
-          <button
-            onClick={() => handleNavClick('contact-section')}
-            className="hover:opacity-60 transition-opacity"
-          >
-            CONTACT
-          </button>
+  return (
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/96 backdrop-blur-md border-b border-black/8' : 'bg-transparent'} ${navClass}`}>
+      <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-6 lg:px-10">
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="shrink-0 text-left"
+        >
+          <span className="block text-[18px] font-medium tracking-[0.16em]">THE ADDRESS</span>
+          <span className={`mt-0.5 block text-[8px] tracking-[0.28em] ${isScrolled ? 'text-black/45' : 'text-white/65'}`}>NEW JERSEY REAL ESTATE</span>
+        </button>
+
+        <nav className="hidden lg:flex items-center gap-8 text-[11px] font-medium tracking-[0.16em]">
+          <button onClick={() => handleNavClick('properties-section', 'buy')} className="nav-link">BUY</button>
+          <button onClick={() => handleNavClick('properties-section', 'rent')} className="nav-link">RENT</button>
+          <button onClick={() => onOpenSellModal()} className="nav-link">SELL</button>
+          <button onClick={() => handleNavClick('properties-section')} className="nav-link">LISTINGS</button>
+          <button onClick={() => handleNavClick('locations-section')} className="nav-link">AREAS</button>
+          <button onClick={() => handleNavClick('about-section')} className="nav-link">ABOUT</button>
+          <button onClick={() => handleNavClick('contact-section')} className="nav-link">CONTACT</button>
         </nav>
 
-        {/* Right Controls: Unit/Currency & Saved */}
-        <div className="hidden md:flex items-center space-x-6 text-[12px] tracking-wider uppercase font-medium">
-          {/* Unit Switcher */}
-          <button
-            onClick={() => setUnit(unit === 'pyeong' ? 'm2' : 'pyeong')}
-            className="hover:opacity-60 transition-opacity"
-            title="면적 단위 전환"
-          >
-            {unit === 'pyeong' ? '평' : '㎡'}
-          </button>
-
-          <span className="opacity-30">/</span>
-
-          {/* Currency Switcher */}
-          <button
-            onClick={() => setCurrency(currency === 'KRW' ? 'USD' : 'KRW')}
-            className="hover:opacity-60 transition-opacity"
-            title="통화 단위 전환"
-          >
-            {currency}
-          </button>
-
-          {/* Saved count */}
-          <button
-            onClick={onOpenFavorites}
-            className="hover:opacity-60 transition-opacity"
-          >
-            SAVED {favoritesCount > 0 && `(${favoritesCount})`}
-          </button>
+        <div className="hidden md:flex items-center gap-5 text-[10px] tracking-[0.13em]">
+          <button onClick={onOpenFavorites} className="nav-link">SAVED{favoritesCount > 0 ? ` ${favoritesCount}` : ''}</button>
+          <button onClick={() => setCurrency(currency === 'USD' ? 'KRW' : 'USD')} className="nav-link">{currency}</button>
         </div>
 
-        {/* Mobile Menu Button (Minimal text button) */}
-        <div className="flex md:hidden items-center space-x-4">
-          <button
-            onClick={onOpenFavorites}
-            className="text-[12px] uppercase font-medium tracking-wider"
-          >
-            SAVED {favoritesCount > 0 && `(${favoritesCount})`}
-          </button>
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-[13px] uppercase font-semibold tracking-widest px-2 py-1"
-            aria-label="Toggle Navigation"
-          >
-            {mobileMenuOpen ? 'CLOSE' : 'MENU'}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden text-[11px] font-medium tracking-[0.16em]"
+          aria-label="Open navigation"
+        >
+          {mobileMenuOpen ? 'CLOSE' : 'MENU'}
+        </button>
       </div>
 
-      {/* Mobile Drawer (Clean Fullscreen Minimalist) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-20 bg-white text-[#111111] z-50 flex flex-col justify-between px-8 py-10 animate-in fade-in duration-200">
-          <div className="flex flex-col space-y-7 text-xl font-light tracking-[0.2em] uppercase">
-            <button
-              onClick={() => handleNavClick('properties-section', 'buy')}
-              className="text-left hover:opacity-60 transition-opacity"
-            >
-              BUY
-            </button>
-            <button
-              onClick={() => handleNavClick('properties-section', 'rent')}
-              className="text-left hover:opacity-60 transition-opacity"
-            >
-              RENT
-            </button>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenSellModal();
-              }}
-              className="text-left hover:opacity-60 transition-opacity"
-            >
-              SELL
-            </button>
-            <button
-              onClick={() => handleNavClick('properties-section')}
-              className="text-left hover:opacity-60 transition-opacity"
-            >
-              PROPERTIES
-            </button>
-            <button
-              onClick={() => handleNavClick('about-section')}
-              className="text-left hover:opacity-60 transition-opacity"
-            >
-              ABOUT
-            </button>
-            <button
-              onClick={() => handleNavClick('contact-section')}
-              className="text-left hover:opacity-60 transition-opacity"
-            >
-              CONTACT
-            </button>
-          </div>
-
-          <div className="pt-8 border-t border-neutral-100 flex items-center justify-between text-xs tracking-widest text-neutral-500 uppercase">
-            <div className="flex items-center space-x-4">
-              <button onClick={() => setUnit(unit === 'pyeong' ? 'm2' : 'pyeong')}>
-                단위: {unit === 'pyeong' ? '평' : '㎡'}
-              </button>
-              <span>·</span>
-              <button onClick={() => setCurrency(currency === 'KRW' ? 'USD' : 'KRW')}>
-                통화: {currency}
-              </button>
-            </div>
-            <span>THE ADDRESS</span>
+        <div className="absolute inset-x-0 top-[76px] min-h-[calc(100vh-76px)] bg-white px-7 py-10 text-[#171717]">
+          <nav className="flex flex-col gap-7 text-[22px] font-light tracking-[0.08em]">
+            <button className="text-left" onClick={() => handleNavClick('properties-section', 'buy')}>BUY</button>
+            <button className="text-left" onClick={() => handleNavClick('properties-section', 'rent')}>RENT</button>
+            <button className="text-left" onClick={() => { setMobileMenuOpen(false); onOpenSellModal(); }}>SELL</button>
+            <button className="text-left" onClick={() => handleNavClick('properties-section')}>LISTINGS</button>
+            <button className="text-left" onClick={() => handleNavClick('locations-section')}>AREAS</button>
+            <button className="text-left" onClick={() => handleNavClick('about-section')}>ABOUT</button>
+            <button className="text-left" onClick={() => handleNavClick('contact-section')}>CONTACT</button>
+          </nav>
+          <div className="mt-14 border-t border-black/10 pt-5 text-[10px] tracking-[0.14em] text-black/50">
+            <button onClick={onOpenFavorites}>SAVED{favoritesCount > 0 ? ` ${favoritesCount}` : ''}</button>
+            <span className="mx-4">/</span>
+            <button onClick={() => setCurrency(currency === 'USD' ? 'KRW' : 'USD')}>{currency}</button>
           </div>
         </div>
       )}
